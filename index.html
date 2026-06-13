@@ -1,0 +1,3464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoToolRadar Publisher</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(255,101,132,0.06) 0%, transparent 50%);
+  }
+  header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(18,18,26,0.9);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 900; }
+  .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 20px; }
+  .cat-btn {
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-btn.active { background: rgba(108,99,255,0.18); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* AUTH */
+  .auth-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; gap: 28px; }
+  .auth-hero { font-size: clamp(26px, 6vw, 44px); font-weight: 900; line-height: 1.2; background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .auth-sub { color: var(--text2); font-size: 15px; max-width: 380px; line-height: 1.7; font-family: 'Tajawal', sans-serif; }
+  .btn-google { display: flex; align-items: center; gap: 12px; padding: 15px 30px; background: white; color: #333; border: none; border-radius: var(--radius); font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+
+  /* STEPS */
+  .steps { display: flex; gap: 6px; margin-bottom: 28px; overflow-x: auto; padding-bottom: 4px; }
+  .step { display: flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--surface); border: 1px solid var(--border); color: var(--text2); }
+  .step.active { background: rgba(108,99,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .step.done { background: rgba(67,233,123,0.1); border-color: rgba(67,233,123,0.3); color: var(--accent3); }
+  .step-num { width: 20px; height: 20px; border-radius: 50%; background: currentColor; color: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
+
+  /* CARD */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .card-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+  /* INPUTS */
+  label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 7px; letter-spacing: 0.5px; text-transform: uppercase; }
+  input, textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; color: var(--text); font-family: 'Cairo', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; margin-bottom: 16px; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 160px; font-family: monospace; font-size: 13px; }
+
+  /* BUTTONS */
+  .btn { padding: 13px 24px; border-radius: 10px; border: none; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #8b82ff); color: white; width: 100%; justify-content: center; font-size: 15px; padding: 15px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108,99,255,0.4); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-publish { background: linear-gradient(135deg, var(--accent3), #00c851); color: #0a0a0f; width: 100%; justify-content: center; font-size: 15px; padding: 15px; font-weight: 900; }
+  .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(67,233,123,0.4); }
+  .btn-draft { background: linear-gradient(135deg, #f7971e, #ffd200); color: #0a0a0f; width: 100%; justify-content: center; font-size: 15px; padding: 15px; font-weight: 900; }
+  .btn-draft:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(247,151,30,0.4); }
+  .btn-row { display: flex; gap: 10px; margin-bottom: 14px; }
+
+  /* TITLES */
+  .title-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .title-option { padding: 13px 16px; background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 14px; font-family: 'Tajawal', sans-serif; transition: all 0.2s; color: var(--text); line-height: 1.5; }
+  .title-option:hover { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+  .title-option.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+
+  /* IMAGES */
+  .images-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .img-option { aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; border: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+  .img-option img { width: 100%; height: 100%; object-fit: cover; }
+  .img-option:hover, .img-option.selected { border-color: var(--accent); transform: scale(1.02); }
+
+  /* IMAGE UPLOAD */
+  .upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 14px; color: var(--text2); font-size: 14px; font-family: 'Tajawal', sans-serif; }
+  .upload-area:hover { border-color: var(--accent); color: var(--accent); }
+  .upload-preview { width: 100%; border-radius: 10px; max-height: 180px; object-fit: cover; margin-bottom: 14px; display: none; }
+  #fileInput { display: none; }
+
+  /* TAGS */
+  .tags-container { display: flex; flex-wrap: wrap; gap: 7px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; min-height: 48px; cursor: text; }
+  .tag { display: flex; align-items: center; gap: 5px; padding: 3px 10px; background: rgba(108,99,255,0.2); border: 1px solid rgba(108,99,255,0.4); border-radius: 50px; font-size: 12px; color: var(--accent); }
+  .tag-remove { cursor: pointer; font-size: 15px; line-height: 1; opacity: 0.7; }
+  .tag-remove:hover { opacity: 1; }
+  .tags-input { border: none; background: transparent; outline: none; font-size: 13px; color: var(--text); min-width: 100px; margin-bottom: 0; padding: 3px; }
+
+  /* SCHEDULE */
+  .schedule-options { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .schedule-opt { padding: 10px 18px; background: var(--surface2); border: 2px solid var(--border); border-radius: 50px; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s; user-select: none; }
+  .schedule-opt.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+  .schedule-time { display: none; margin-bottom: 16px; }
+
+  /* ALERTS */
+  .alert { padding: 13px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; display: none; font-family: 'Tajawal', sans-serif; line-height: 1.6; }
+  .alert-success { background: rgba(67,233,123,0.1); border: 1px solid rgba(67,233,123,0.3); color: var(--accent3); }
+  .alert-error { background: rgba(255,101,132,0.1); border: 1px solid rgba(255,101,132,0.3); color: var(--accent2); }
+
+  /* LOADING */
+  .loading { display: none; align-items: center; gap: 10px; padding: 14px; color: var(--text2); font-size: 13px; font-family: 'Tajawal', sans-serif; }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* PREVIEW */
+  .preview-box { padding: 14px; background: var(--surface2); border-radius: 10px; margin-bottom: 12px; }
+  .preview-label { font-size: 11px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+  /* USER */
+  .user-info { display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .user-name { font-size: 13px; font-weight: 600; }
+
+  .hint { font-size: 12px; color: var(--text2); margin-top: -12px; margin-bottom: 16px; font-family: 'Tajawal', sans-serif; }
+
+  /* PAGE VISIBILITY */
+  .page { display: none !important; }
+  .page.active { display: block !important; }
+  #authPage.active { display: flex !important; }
+
+/* IMPROVEMENTS PATCH */
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px}
+.card{box-shadow:0 10px 35px rgba(0,0,0,.15)}
+input,textarea,select{backdrop-filter:blur(6px)}
+.btn:active{transform:scale(.98)}
+/* HEADER BUTTONS */
+.hdr-btn { font-size:12px; padding:7px 11px; }
+.hdr-status { display:flex; align-items:center; gap:6px; padding:7px 11px; background:var(--surface2); border:1px solid var(--border); border-radius:50px; font-size:12px; color:var(--text2); }
+
+@media(max-width:768px){
+.container{padding:18px 12px}
+.btn-row{flex-direction:column}
+.images-grid{grid-template-columns:1fr 1fr}
+.steps{gap:4px}
+.card{padding:18px}
+#statsCards{grid-template-columns:1fr!important}
+.schedule-options{flex-direction:column}
+/* Header mobile */
+header { padding:12px 14px; }
+.logo { font-size:14px; }
+.logo-icon { width:28px; height:28px; font-size:13px; }
+.hdr-btn { padding:6px 8px; font-size:11px; }
+.hdr-label { display:none; }
+.hdr-status { padding:6px 8px; }
+#headerRight { gap:4px; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎯</div>
+    GoToolRadar Publisher
+  </div>
+  <div id="headerRight" style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
+  </div>
+</header>
+
+<style>@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }</style>
+
+<!-- AUTH PAGE -->
+<div id="authPage" class="page active">
+  <div class="auth-center">
+    <div class="auth-hero">انشر محتواك<br>بضغطة واحدة ⚡</div>
+    <p class="auth-sub">أداة نشر ذكية لموقع GoToolRadar — الصق الكود وانشره على Blogger تلقائياً</p>
+    <button class="btn-google" onclick="window.signInWithGoogle&&signInWithGoogle()">
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      تسجيل الدخول بـ Google
+    </button>
+    <p style="font-size:11px;color:var(--text2);font-family:'Tajawal',sans-serif;">🔒 آمن — لا نحفظ كلمات المرور</p>
+  </div>
+</div>
+
+<!-- SETUP PAGE -->
+<div id="setupPage" class="page">
+  <div class="container">
+    <p style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">إعداد التطبيق</p>
+    <div class="card">
+      <div class="card-title"><div class="card-icon" style="background:rgba(108,99,255,0.15)">🔑</div>إعدادات API</div>
+      <label>OpenRouter API Key (لتوليد العناوين)</label>
+      <input type="password" id="geminiKey" placeholder="sk-or-...">
+      <p class="hint">احصل عليه مجاناً من <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a></p>
+      <label>Blogger Blog ID</label>
+      <input type="text" id="blogId" value="2603696989245583921">
+      <p class="hint">موجود في رابط Blogger ✅</p>
+      <button class="btn btn-primary" onclick="saveSetup()">💾 حفظ الإعدادات ←</button>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px;" onclick="showPage('mainPage')">← رجوع للتطبيق</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- HISTORY PAGE -->
+<div id="fixerPage" class="page">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:900;color:var(--accent);">🔧 Label Fixer</h2>
+      <button class="btn btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="showPage('mainPage')">← رجوع</button>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:20px;font-family:Tajawal,sans-serif;">تصليح تصنيفات جميع المقالات تلقائياً — يحذف الغلط ويصحح المشابه</p>
+
+    <!-- التصنيفات المسموحة -->
+    <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;">✅ التصنيفات المسموحة (اضغط لتفعيل/تعطيل)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;" id="fixerTagsGrid"></div>
+      <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;">أي تصنيف غير موجود بالقائمة سيُحذف تلقائياً</div>
+    </div>
+
+    <!-- إحصائيات -->
+    <div id="fixerStats" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">📊 التحليل</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent);" id="fStatTotal">0</div>
+          <div style="font-size:11px;color:var(--text2);">إجمالي</div>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent2);" id="fStatNeed">0</div>
+          <div style="font-size:11px;color:var(--text2);">تحتاج تصليح</div>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent3);" id="fStatFixed">0</div>
+          <div style="font-size:11px;color:var(--text2);">تم تصليحها</div>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:#ff6584;" id="fStatEmpty">0</div>
+          <div style="font-size:11px;color:var(--text2);">بدون تصنيف</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="fixerProgressWrap" style="display:none;background:var(--surface2);border-radius:10px;height:8px;margin-bottom:14px;overflow:hidden;">
+      <div id="fixerProgressBar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:10px;width:0%;transition:width .3s;"></div>
+    </div>
+
+    <!-- أزرار -->
+    <button class="btn" onclick="fixerLoadPosts()" id="fixerLoadBtn" style="width:100%;justify-content:center;padding:13px;background:linear-gradient(135deg,var(--accent),#9c63ff);color:white;border:none;border-radius:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;">📥 جلب وتحليل المقالات</button>
+    <button class="btn" onclick="fixerStart()" id="fixerStartBtn" style="display:none;width:100%;justify-content:center;padding:13px;background:linear-gradient(135deg,var(--accent3),#00c851);color:#000;border:none;border-radius:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;">🚀 ابدأ التصليح التلقائي</button>
+    <button class="btn" onclick="fixerClassifyEmpty()" id="fixerClassifyBtn" style="display:none;width:100%;justify-content:center;padding:13px;background:linear-gradient(135deg,#ff6584,#ff4757);color:white;border:none;border-radius:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;">🤖 صنّف الفاضية بالـ AI</button>
+
+    <!-- تنظيف بقايا الاقتباسات -->
+    <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;">🧹 تنظيف بقايا الاقتباسات (citeweb_search)</div>
+      <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:12px;">يفحص محتوى كل المقالات (live + scheduled + draft) ويحذف أي نص من نوع citeweb_search:رقم#رقم تلقائياً، ثم يحفظ التعديل على Blogger.</div>
+      <div id="cleanerStats" style="display:none;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent);" id="cStatTotal">0</div>
+          <div style="font-size:11px;color:var(--text2);">إجمالي المقالات</div>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent2);" id="cStatNeed">0</div>
+          <div style="font-size:11px;color:var(--text2);">فيها بقايا</div>
+        </div>
+        <div style="flex:1;min-width:100px;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:var(--accent3);" id="cStatFixed">0</div>
+          <div style="font-size:11px;color:var(--text2);">تم تنظيفها</div>
+        </div>
+      </div>
+      <div id="cleanerProgressWrap" style="display:none;background:var(--surface2);border-radius:10px;height:8px;margin-bottom:14px;overflow:hidden;">
+        <div id="cleanerProgressBar" style="height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent3));border-radius:10px;width:0%;transition:width .3s;"></div>
+      </div>
+      <button class="btn" onclick="cleanerScan()" id="cleanerScanBtn" style="width:100%;justify-content:center;padding:13px;background:linear-gradient(135deg,var(--accent),#9c63ff);color:white;border:none;border-radius:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;">🔍 فحص كل المقالات</button>
+      <button class="btn" onclick="cleanerStart()" id="cleanerStartBtn" style="display:none;width:100%;justify-content:center;padding:13px;background:linear-gradient(135deg,var(--accent3),#00c851);color:#000;border:none;border-radius:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;">🧹 نظّف المقالات الآن</button>
+      <div id="cleanerLog" style="display:none;background:var(--surface2);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;max-height:280px;overflow-y:auto;line-height:2;"></div>
+    </div>
+
+    <!-- السجل -->
+    <div id="fixerLogCard" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;">📋 السجل</div>
+      <div id="fixerLog" style="background:var(--surface2);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;max-height:280px;overflow-y:auto;line-height:2;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="historyPage" class="page">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <p style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;">لوحة التحكم</p>
+      <button class="btn btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="showPage('mainPage')">← رجوع</button>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;" id="statsCards">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;">
+        <div style="font-size:26px;font-weight:900;color:var(--accent);" id="statTotal">0</div>
+        <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-top:4px;">مقال منشور</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;">
+        <div style="font-size:26px;font-weight:900;color:var(--accent3);" id="statWeek">0</div>
+        <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-top:4px;">هذا الأسبوع</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;">
+        <div style="font-size:26px;font-weight:900;color:var(--accent2);" id="statDrafts">0</div>
+        <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-top:4px;">مسودة</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button id="htab-published" onclick="switchHistoryTab('published')" class="btn btn-primary" style="flex:1;font-size:12px;padding:8px;">📢 المنشورة</button>
+      <button id="htab-scheduled" onclick="switchHistoryTab('scheduled')" class="btn btn-secondary" style="flex:1;font-size:12px;padding:8px;">📅 المجدولة</button>
+      <button id="htab-drafts" onclick="switchHistoryTab('drafts')" class="btn btn-secondary" style="flex:1;font-size:12px;padding:8px;">📝 المسودات</button>
+    </div>
+
+    <div id="historyList"></div>
+
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:10px;font-size:12px;color:var(--accent2);" onclick="clearHistory()">🗑️ مسح السجل</button>
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
+<div id="mainPage" class="page">
+  <div class="container">
+
+    <!-- QUICK STATS BAR -->
+    <div id="quickStatsBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-family:Tajawal,sans-serif;">
+        <span style="color:var(--accent);font-weight:900;font-size:15px;" id="qs-total">0</span> منشور
+      </div>
+      <div style="width:1px;height:14px;background:var(--border);"></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-family:Tajawal,sans-serif;">
+        <span style="color:var(--accent3);font-weight:900;font-size:15px;" id="qs-week">0</span> هذا الأسبوع
+      </div>
+      <div style="width:1px;height:14px;background:var(--border);"></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-family:Tajawal,sans-serif;">
+        آخر نشر: <span style="color:var(--text);font-weight:700;" id="qs-last">—</span>
+      </div>
+      <button onclick="showPage('historyPage');renderHistory()" style="margin-right:auto;background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;padding:0;">السجل ←</button>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-num">1</div> الكود</div>
+      <div class="step" id="step2"><div class="step-num">2</div> العنوان</div>
+      <div class="step" id="step3"><div class="step-num">3</div> الصورة</div>
+      <div class="step" id="step4"><div class="step-num">4</div> النشر</div>
+    </div>
+
+    <!-- STEP 1: CODE -->
+    <div id="contentStep">
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(108,99,255,0.15)">📋</div>الصق كود المقال</div>
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          كود HTML للمقال
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-bottom:0;" onclick="document.getElementById('htmlFileInput').click()">📎 رفع ملف</button>
+            <input type="file" id="htmlFileInput" accept=".html,.htm,.txt" style="display:none;" onchange="handleHtmlFileUpload(event)">
+            <button class="btn btn-secondary" id="editCodeBtn" style="font-size:11px;padding:4px 10px;margin-bottom:0;display:none;" onclick="toggleCodeEditor()">✏️ تعديل الكود</button>
+          </div>
+        </label>
+        <textarea id="articleContent" placeholder="الصق كود HTML هنا..." oninput="onArticleInput()" style="min-height:160px;"></textarea>
+        <div id="autosaveIndicator" style="opacity:0;transition:opacity 0.4s;font-size:11px;color:var(--accent3);font-family:Tajawal,sans-serif;margin-top:-12px;margin-bottom:10px;">💾 تم الحفظ تلقائياً</div>
+        <!-- Article stats -->
+        <div id="articleStats" style="display:none;margin-top:-10px;margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;padding:4px 10px;background:var(--surface2);border-radius:50px;">📝 <span id="statWords">0</span> كلمة</span>
+          <span style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;padding:4px 10px;background:var(--surface2);border-radius:50px;">⏱️ <span id="statReadTime">0</span> دقيقة قراءة</span>
+          <span style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;padding:4px 10px;background:var(--surface2);border-radius:50px;">🔤 <span id="statChars">0</span> حرف</span>
+        </div>
+        <div id="codeEditorWrap" style="display:none;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;font-weight:700;color:var(--accent);">✏️ تعديل الكود</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="applyCodeEdit()">✅ تطبيق</button>
+              <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;" onclick="toggleCodeEditor()">✕ إغلاق</button>
+            </div>
+          </div>
+          <textarea id="codeEditor" style="min-height:200px;font-family:monospace;font-size:12px;direction:ltr;text-align:left;" placeholder="عدّل الكود هنا..."></textarea>
+        </div>
+        <!-- CATEGORY SELECTOR -->
+        <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          التصنيف
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-bottom:0;" onclick="autoCategorize()" id="autoCatBtn">🤖 صنّف تلقائياً</button>
+        </label>
+        <div id="categoryBtns" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;">
+          <button onclick="toggleCategory(this,'AI Video')"       class="cat-btn">🎬 AI Video</button>
+          <button onclick="toggleCategory(this,'AI Image')"       class="cat-btn">🖼️ AI Image</button>
+          <button onclick="toggleCategory(this,'AI Audio')"       class="cat-btn">🎵 AI Audio</button>
+          <button onclick="toggleCategory(this,'AI Productivity')" class="cat-btn">⚡ AI Productivity</button>
+          <button onclick="toggleCategory(this,'AI Builders')"    class="cat-btn">🏗️ AI Builders</button>
+          <button onclick="toggleCategory(this,'AI chatbots')"    class="cat-btn">💬 AI Chatbots</button>
+          <button onclick="toggleCategory(this,'AI Coding')"      class="cat-btn">💻 AI Coding</button>
+          <button onclick="toggleCategory(this,'AI Design')"      class="cat-btn">🎨 AI Design</button>
+          <button onclick="toggleCategory(this,'AI Writing')"     class="cat-btn">✍️ AI Writing</button>
+        </div>
+
+        <label style="display:flex;align-items:center;justify-content:space-between;">Labels / الكلمات المفتاحية <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px;margin-bottom:0;" onclick="suggestTags(this)">✨ اقتراح تلقائي</button></label>
+        <div class="tags-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
+          <input class="tags-input" id="tagInput" placeholder="اكتب كلمة واضغط Enter..." onkeydown="handleTagInput(event)">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" style="flex:1" onclick="goToTitlesManual()">✏️ أدخل يدوياً</button>
+          <button class="btn btn-primary" style="flex:1" onclick="goToTitles()">✨ ولّد عناوين ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: TITLES -->
+    <div id="titlesStep" style="display:none;">
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(255,101,132,0.15)">💡</div>اختر عنواناً</div>
+        <div class="loading" id="titlesLoading"><div class="spinner"></div>جاري توليد العناوين...</div>
+        <div class="title-options" id="titleOptions"></div>
+        <button class="btn btn-secondary" id="regenBtn" style="width:100%;justify-content:center;margin-bottom:12px;display:none;" onclick="regenTitles()">🔁 أعد توليد العناوين</button>
+        <label>أو عدّل العنوان المختار</label>
+        <input type="text" id="customTitle" placeholder="عنوان مخصص..." oninput="state.selectedTitle = this.value">
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="goBack('contentStep',1)">← رجوع</button>
+          <button class="btn btn-primary" style="flex:1" onclick="goToImage()">التالي: اختر صورة ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: IMAGE/VIDEO -->
+    <div id="imageStep" style="display:none;">
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(67,233,123,0.15)">🖼️</div>أضف الوسائط</div>
+
+        <!-- TABS -->
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <button id="tab-main" onclick="switchMediaTab('main')" class="btn btn-primary" style="flex:1;font-size:13px;padding:10px 6px;">🖼️ الصورة الرئيسية</button>
+          <button id="tab-secondary" onclick="switchMediaTab('secondary')" class="btn btn-secondary" style="flex:1;font-size:13px;padding:10px 6px;">📸 الصور الثانوية</button>
+        </div>
+
+        <!-- TAB: MAIN IMAGE -->
+        <div id="mediaTab-main">
+          <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            🖼️ ارفع صورة من جهازك (JPG, PNG, WebP)
+          </div>
+          <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)">
+          <img id="uploadPreview" class="upload-preview" src="" alt="preview">
+          <div id="imageInfo" style="display:none;font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;"></div>
+
+          <label>أو رابط صورة</label>
+          <input type="url" id="customImageUrl" placeholder="https://...">
+
+          <label style="margin-top:4px;">حجم الصورة في المقال</label>
+          <select id="imageSize" style="margin-bottom:16px;">
+            <option value="original" selected>أصلي — بدون تغيير</option>
+            <option value="medium">وسط — 400px</option>
+            <option value="small">صغير — 200px</option>
+          </select>
+
+          <div id="imageWarning" style="display:none;padding:10px 14px;background:rgba(255,101,132,0.1);border:1px solid rgba(255,101,132,0.3);border-radius:10px;margin-bottom:14px;font-size:12px;color:var(--accent2);font-family:'Tajawal',sans-serif;"></div>
+
+          <div style="padding:10px 14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:10px;margin-bottom:16px;font-size:12px;color:var(--text2);font-family:'Tajawal',sans-serif;line-height:1.7;">
+            📐 المقاس المثالي: <strong style="color:var(--text)">1200×675px (16:9)</strong><br>
+            ⚡ هي الصورة اللي بتطلع أول المقال وعلى السوشيال ميديا
+          </div>
+        </div>
+
+        <!-- TAB: SECONDARY IMAGES -->
+        <div id="mediaTab-secondary" style="display:none;">
+          <div class="upload-area" onclick="document.getElementById('secondaryFilesInput').click()">
+            📸 ارفع صور ثانوية (سكرين شوت للأدوات وغيرها) — يمكن اختيار أكثر من صورة
+          </div>
+          <input type="file" id="secondaryFilesInput" accept="image/*" multiple onchange="handleSecondaryImages(event)">
+
+          <div id="secondaryImagesPreview" style="margin-bottom:14px;"></div>
+          <div id="secondaryInfo" style="display:none;font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;"></div>
+
+          <div style="padding:10px 14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:10px;margin-bottom:16px;font-size:12px;color:var(--text2);font-family:'Tajawal',sans-serif;line-height:1.7;">
+            📌 هاي الصور بتنضاف <strong style="color:var(--text)">بنص المقال</strong> بالترتيب اللي اخترتها فيه<br>
+            💡 مثالية لسكرين شوت الأدوات والشروحات
+          </div>
+        </div>
+
+        <!-- TAB: VIDEO (disabled) -->
+        <div id="mediaTab-video" style="display:none!important;">
+          <label>رابط يوتيوب أو فيديو مباشر</label>
+          <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=... أو رابط mp4 مباشر" style="margin-bottom:12px;">
+
+          <div style="text-align:center;color:var(--text2);font-size:12px;margin-bottom:12px;font-family:Tajawal,sans-serif;">— أو —</div>
+
+          <div class="upload-area" onclick="document.getElementById('videoFileInput').click()">
+            🎬 ارفع فيديو من جهازك (MP4, WebM)
+          </div>
+          <input type="file" id="videoFileInput" accept="video/*" onchange="handleVideoUpload(event)">
+          <div id="videoPreviewWrap" style="display:none;margin-bottom:14px;">
+            <video id="videoPreview" controls style="width:100%;border-radius:10px;max-height:220px;background:#000;"></video>
+          </div>
+          <div id="videoInfo" style="display:none;font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:12px;padding:8px 12px;background:var(--surface2);border-radius:8px;"></div>
+
+          <div style="padding:10px 14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:10px;margin-bottom:16px;font-size:12px;color:var(--text2);font-family:'Tajawal',sans-serif;line-height:1.7;">
+            🎬 الفيديو بينضاف <strong style="color:var(--text)">بنص المقال</strong> كـ embed<br>
+            📺 يوتيوب بيتضمن كـ iframe — الفيديو المرفوع بيرفع على Cloudinary
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="goBack('titlesStep',2)">← رجوع</button>
+          <button class="btn btn-primary" style="flex:1" onclick="goToPublish()">التالي: النشر ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: PUBLISH -->
+    <div id="publishStep" style="display:none;">
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(67,233,123,0.15)">🚀</div>مراجعة ونشر</div>
+
+        <!-- Preview -->
+        <div class="preview-box" style="margin-bottom:12px;">
+          <div class="preview-label">العنوان</div>
+          <p id="previewTitle" style="font-size:15px;font-weight:700;line-height:1.4;"></p>
+        </div>
+        <div id="previewImageContainer" style="display:none;margin-bottom:12px;">
+          <div class="preview-label">الصورة</div>
+          <img id="previewImage" style="width:100%;border-radius:10px;max-height:160px;object-fit:cover;" src="" alt="">
+        </div>
+        <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:14px;" onclick="openPreviewModal()">👁️ معاينة المقال كاملاً</button>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;overflow-y:auto;padding:20px;">
+          <div style="max-width:800px;margin:0 auto;background:var(--surface);border-radius:var(--radius);padding:24px;position:relative;">
+            <button onclick="closePreviewModal()" style="position:absolute;top:14px;left:14px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;">✕ إغلاق</button>
+            <div id="previewModalContent" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <!-- Schedule -->
+        <label>وقت النشر</label>
+        <div id="smartTimeSuggestion" style="display:none;margin-bottom:10px;padding:10px 14px;background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.2);border-radius:10px;font-size:12px;color:var(--accent3);font-family:'Tajawal',sans-serif;cursor:pointer;" onclick="applySmartTime()">
+          💡 <span id="smartTimeText"></span> — <u>تطبيق</u>
+        </div>
+        <div class="schedule-options">
+          <div class="schedule-opt active" id="opt-now" onclick="setSchedule('now')">🚀 الآن</div>
+          <div class="schedule-opt" id="opt-schedule" onclick="setSchedule('schedule')">📅 وقت محدد</div>
+          <div class="schedule-opt" id="opt-draft" onclick="setSchedule('draft')">📝 مسودة</div>
+        </div>
+        <div class="schedule-time" id="scheduleTime">
+          <label>اختر التاريخ والوقت</label>
+          <input type="datetime-local" id="publishDateTime">
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+        <div class="loading" id="publishLoading"><div class="spinner"></div>جاري النشر...</div>
+
+        <div id="publishButtons">
+          <div class="btn-row" style="margin-bottom:10px;">
+            <button class="btn btn-secondary" onclick="goBack('imageStep',3)">← رجوع</button>
+            <button class="btn btn-publish" style="flex:1" onclick="publishNow(false)" id="publishBtn">🚀 انشر الآن</button>
+          </div>
+          <button class="btn btn-draft" onclick="publishNow(true)" id="draftBtn" style="display:none;">📝 حفظ كمسودة</button>
+        </div>
+
+        <button class="btn btn-secondary" style="width:100%;margin-top:12px;justify-content:center;" onclick="resetApp()">✏️ مقال جديد</button>
+      </div>
+    </div>
+
+    <!-- POST PUBLISH CARD -->
+    <div id="postPublishCard" style="display:none;">
+      <div class="card" style="border-color:var(--accent3);border-top:3px solid var(--accent3);">
+        <div class="card-title"><div class="card-icon" style="background:rgba(67,233,123,0.15)">🎉</div>جاهز للنشر على السوشيال</div>
+        <div style="margin-bottom:14px;">
+          <div class="preview-label">العنوان</div>
+          <p id="ppTitle" style="font-size:15px;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:10px;"></p>
+          <div class="preview-label">أول سطر</div>
+          <p id="ppFirstLine" style="font-size:13px;color:var(--text2);line-height:1.6;font-family:Tajawal,sans-serif;margin-bottom:10px;"></p>
+          <div id="ppLinkWrap" style="display:none;">
+            <div class="preview-label">رابط المقال</div>
+            <p id="ppUrl" style="font-size:12px;color:var(--accent3);word-break:break-all;margin-bottom:10px;font-family:monospace;"></p>
+          </div>
+        </div>
+        <button onclick="copyPostInfo(this)" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">📋 نسخ العنوان + أول سطر + الرابط</button>
+        <button id="copyLinkImgBtn" onclick="copyLinkAndImage()" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;display:none;">🔗 نسخ الرابط + رابط الصورة</button>
+        <button id="downloadImgBtn" onclick="downloadCompressedImage()" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:14px;display:none;">⬇️ تنزيل الصورة مضغوطة للتويتر</button>
+
+        <!-- SOCIAL AI SECTION -->
+        <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:14px;">
+          <button onclick="generateSocialContent(this)" id="generateSocialBtn" class="btn btn-primary" style="margin-bottom:14px;">✨ ولّد محتوى السوشيال بـ AI</button>
+
+          <!-- TWITTER -->
+          <div id="twitterSection" style="display:none;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;">🐦 تويتر / X</div>
+              <span id="tweetCharCount" style="font-size:11px;color:var(--text2);font-family:monospace;"></span>
+            </div>
+            <textarea id="tweetText" style="min-height:100px;font-size:13px;direction:ltr;text-align:left;resize:vertical;" oninput="updateTweetCount()" placeholder="جارٍ التوليد..."></textarea>
+            <button onclick="copySocialText('tweetText', this)" class="btn btn-secondary" style="width:100%;justify-content:center;font-size:13px;padding:9px;margin-bottom:4px;">📋 نسخ التغريدة</button>
+          </div>
+
+          <!-- PINTEREST -->
+          <div id="pinterestSection" style="display:none;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;">📌 بنترست</div>
+
+            <!-- 1. العنوان -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                <div class="preview-label" style="margin-bottom:0;">① العنوان</div>
+                <button onclick="copySocialText('pinTitle', this)" class="btn btn-secondary" style="font-size:11px;padding:4px 10px;">📋 نسخ</button>
+              </div>
+              <input type="text" id="pinTitle" style="margin-bottom:0;font-size:13px;" placeholder="جارٍ التوليد...">
+            </div>
+
+            <!-- 2. الوصف -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                <div class="preview-label" style="margin-bottom:0;">② الوصف</div>
+                <button onclick="copySocialText('pinDesc', this)" class="btn btn-secondary" style="font-size:11px;padding:4px 10px;">📋 نسخ</button>
+              </div>
+              <textarea id="pinDesc" style="min-height:90px;font-size:13px;direction:ltr;text-align:left;resize:vertical;margin-bottom:0;" placeholder="جارٍ التوليد..."></textarea>
+            </div>
+
+            <!-- 3. رابط المقال -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                <div class="preview-label" style="margin-bottom:0;">③ رابط المقال</div>
+                <button onclick="copyPinUrl(this)" class="btn btn-secondary" style="font-size:11px;padding:4px 10px;">📋 نسخ</button>
+              </div>
+              <div id="pinUrlDisplay" style="font-size:12px;color:var(--accent3);word-break:break-all;font-family:monospace;min-height:18px;">—</div>
+            </div>
+
+            <!-- 4. الصورة -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                <div class="preview-label" style="margin-bottom:0;">④ الصورة</div>
+                <button onclick="copyPinImage(this)" id="pinCopyImgBtn" class="btn btn-secondary" style="font-size:11px;padding:4px 10px;">📋 نسخ رابط</button>
+              </div>
+              <div id="pinImagePreview" style="font-size:12px;color:var(--text2);font-family:Tajawal,sans-serif;">لا توجد صورة</div>
+            </div>
+
+            <!-- زر النشر -->
+            <button onclick="publishToPinterest()" id="pinPublishBtn" class="btn" style="width:100%;justify-content:center;font-size:14px;padding:13px;background:linear-gradient(135deg,#e60023,#ad081b);color:white;border:none;border-radius:10px;font-family:Cairo,sans-serif;font-weight:900;cursor:pointer;margin-bottom:4px;">📌 افتح بنترست وانشر</button>
+          </div>
+        </div>
+
+        <button onclick="resetApp()" class="btn btn-publish" style="margin-top:4px;">✏️ مقال جديد</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let state = {
+  user: null,
+  blogId: '2603696989245583921',
+  unsplashKey: '',
+  geminiKey: '',
+  accessToken: '',
+  article: '',
+  selectedTitle: '',
+  selectedImage: null,
+  uploadedImageBase64: null,
+  uploadedImageFile: null,
+  secondaryImages: [],
+  videoData: null,
+  tags: [],
+  scheduleMode: 'now',
+  _smartTime: null
+};
+
+// ===== AUTH =====
+function signInWithGoogle() {
+  const clientId = localStorage.getItem('googleClientId') || '75542230864-tjhp5pkh139e4du8jd4gsnigvljoklu3.apps.googleusercontent.com';
+  const redirectUri = encodeURIComponent('https://salamounraaed-pixel.github.io/publisher');
+  const scope = encodeURIComponent('https://www.googleapis.com/auth/blogger');
+  window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+}
+
+window.addEventListener('load', () => {
+  const hash = window.location.hash;
+  if (hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    state.accessToken = params.get('access_token');
+    localStorage.setItem('bloggerToken', state.accessToken);
+    localStorage.setItem('sessionStart', Date.now().toString());
+    window.history.replaceState({}, document.title, window.location.pathname);
+    state.user = { name: 'Raaed Salamoun' };
+    loadSavedConfig();
+    showPage('mainPage');
+    updateHeader();
+    startSessionTimer();
+    restoreDraft();
+  } else if (localStorage.getItem('bloggerToken')) {
+    state.accessToken = localStorage.getItem('bloggerToken');
+    state.user = { name: 'Raaed Salamoun' };
+    loadSavedConfig();
+    showPage('mainPage');
+    updateHeader();
+    startSessionTimer();
+    restoreDraft();
+  }
+});
+
+function loadSavedConfig() {
+  state.geminiKey = localStorage.getItem('geminiKey') || '';
+  state.unsplashKey = localStorage.getItem('unsplashKey') || '';
+  state.blogId = localStorage.getItem('blogId') || '2603696989245583921';
+  const gk = document.getElementById('geminiKey');
+  const uk = document.getElementById('unsplashKey');
+  const bi = document.getElementById('blogId');
+  if (gk) gk.value = state.geminiKey;
+  if (uk) uk.value = state.unsplashKey;
+  if (bi) bi.value = state.blogId;
+}
+
+async function saveSetup() {
+  const geminiKeyInput = document.getElementById('geminiKey').value.trim();
+  state.geminiKey = geminiKeyInput;
+  const unsplashEl = document.getElementById('unsplashKey');
+  if (unsplashEl) { state.unsplashKey = unsplashEl.value.trim(); localStorage.setItem('unsplashKey', state.unsplashKey); }
+  state.blogId = document.getElementById('blogId').value.trim() || '2603696989245583921';
+  localStorage.setItem('geminiKey', state.geminiKey);
+  localStorage.setItem('blogId', state.blogId);
+
+  // انتقل للصفحة الرئيسية فوراً
+  showPage('mainPage');
+  updateHeader();
+
+  // التحقق من المفتاح في الخلفية
+  if (geminiKeyInput) {
+    try {
+      const testRes = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${geminiKeyInput}` },
+        body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: 'hi' }] })
+      });
+      const testData = await testRes.json();
+      if (testData.error) {
+        alert('❌ مفتاح OpenRouter غير صحيح: ' + testData.error.message);
+      } else {
+        alert('✅ تم التحقق من مفتاح OpenRouter بنجاح!');
+      }
+    } catch(e) {
+      alert('⚠️ تعذر التحقق من المفتاح — تحقق من الاتصال بالإنترنت');
+    }
+  }
+}
+
+function updateHeader() {
+  if (state.user) {
+    document.getElementById('headerRight').innerHTML = `
+      <button class="btn btn-secondary hdr-btn" onclick="showPage('historyPage');renderHistory()">📋 <span class="hdr-label">السجل</span></button>
+      <button class="btn btn-secondary hdr-btn" onclick="openTagger()">🏷️ <span class="hdr-label">الأداة</span></button>
+      <button class="btn btn-secondary hdr-btn" style="color:#43e97b;border-color:rgba(67,233,123,0.4);" onclick="showPage('seoOptimizerPage');loadPostsForSeo()">✨ <span class="hdr-label">SEO</span></button>
+      <button class="btn btn-secondary hdr-btn" style="color:#ff6584;" onclick="signInWithGoogle()">🔄 <span class="hdr-label">تجديد</span></button>
+      <button class="btn btn-secondary hdr-btn" onclick="showPage('fixerPage')">🔧 <span class="hdr-label">تصليح</span></button>
+      <button class="btn btn-secondary hdr-btn" onclick="showPage('setupPage');loadSavedConfig()">⚙️ <span class="hdr-label">إعدادات</span></button>
+      <div class="user-info" style="gap:5px;">
+        <div class="avatar">${state.user.name[0]}</div>
+        <span class="user-name hdr-label" style="font-size:12px;">${state.user.name}</span>
+        <div id="sessionTimerBadge" style="display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:50px;font-size:11px;font-weight:700;font-family:Cairo,sans-serif;background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);color:var(--accent3);">
+          ⏱️ <span id="sessionTimerText">--:--</span>
+        </div>
+        <button onclick="signOut()" style="background:none;border:none;color:var(--accent2);cursor:pointer;font-size:18px;padding:2px 4px;" title="تسجيل الخروج">⏏</button>
+      </div>`;
+  }
+}
+
+function signOut() {
+  if (!confirm('تسجيل الخروج؟')) return;
+  localStorage.removeItem('bloggerToken');
+  state.accessToken = '';
+  state.user = null;
+  document.getElementById('headerRight').innerHTML = ``;
+  showPage('authPage');
+}
+
+// ===== NAV =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'mainPage') loadQuickStats(); if (id === 'fixerPage') fixerRenderTags();
+}
+
+function loadQuickStats() {
+  try {
+    const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+    const published = history.filter(h => !h.isDraft && !h.isScheduled);
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const week = published.filter(h => h.timestamp > weekAgo).length;
+    const last = published[0];
+    const bar = document.getElementById('quickStatsBar');
+    if (!bar) return;
+    if (published.length > 0) {
+      document.getElementById('qs-total').textContent = published.length;
+      document.getElementById('qs-week').textContent = week;
+      document.getElementById('qs-last').textContent = last ? last.date : '—';
+      bar.style.display = 'flex';
+    } else {
+      bar.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step' + i);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+  }
+}
+
+function goBack(stepId, stepNum) {
+  document.querySelectorAll('#mainPage [id$="Step"]').forEach(s => s.style.display = 'none');
+  document.getElementById(stepId).style.display = 'block';
+  setStep(stepNum);
+  // لا نمسح أي شي عند الرجوع — المستخدم يرجع ليعدّل فقط
+}
+
+// ===== TAGS =====
+function handleTagInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    if (val && !state.tags.includes(val)) { state.tags.push(val); renderTags(); }
+    e.target.value = '';
+  }
+}
+function renderTags() {
+  const container = document.getElementById('tagsContainer');
+  const input = document.getElementById('tagInput');
+  container.innerHTML = '';
+  state.tags.forEach((tag, i) => {
+    const el = document.createElement('div');
+    el.className = 'tag';
+    el.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag(${i})">×</span>`;
+    container.appendChild(el);
+  });
+  container.appendChild(input);
+}
+function removeTag(i) { state.tags.splice(i, 1); renderTags(); }
+
+// ===== STEP 1 → 2: TITLES =====
+function goToTitlesManual() {
+  const content = document.getElementById('articleContent').value.trim();
+  if (!content) { alert('الرجاء إدخال كود المقال'); return; }
+  state.article = content;
+  document.getElementById('contentStep').style.display = 'none';
+  document.getElementById('titlesStep').style.display = 'block';
+  setStep(2);
+  document.getElementById('titlesLoading').style.display = 'none';
+  document.getElementById('titleOptions').innerHTML = '';
+}
+
+async function goToTitles() {
+  const content = document.getElementById('articleContent').value.trim();
+  if (!content) { alert('الرجاء إدخال كود المقال'); return; }
+  state.article = content;
+
+
+
+  document.getElementById('contentStep').style.display = 'none';
+  document.getElementById('titlesStep').style.display = 'block';
+  setStep(2);
+
+  const loading = document.getElementById('titlesLoading');
+  const options = document.getElementById('titleOptions');
+  loading.style.display = 'flex';
+  options.innerHTML = '';
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = content;
+  const plainText = tempDiv.innerText || tempDiv.textContent || content;
+
+  try {
+    const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({
+        model: 'openrouter/auto',
+        messages: [{
+          role: 'user',
+          content: `You are an expert at writing article titles for a tech tools website. All titles must be in English only.
+
+Read this article and suggest 5 catchy English titles for it.
+
+Article:
+${plainText.substring(0, 1500)}
+
+Strict rules:
+- Give me only 5 titles numbered 1 to 5
+- Each title on a separate line
+- No explanations or extra text
+- Titles in English only, suitable for GoToolRadar tech tools website`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    loading.style.display = 'none';
+
+    if (data.error) {
+      options.innerHTML = '<p style="color:var(--accent2);font-size:13px;font-family:Tajawal,sans-serif;">❌ ' + (data.error.message || 'خطأ في OpenRouter API') + '<br><small>تحقق من الـ API Key في الإعدادات</small></p>';
+      return;
+    }
+
+    if (data.choices && data.choices[0]) {
+      const text = data.choices[0].message.content;
+      const lines = text.split('\n').filter(l => l.trim() && /^\d/.test(l.trim()));
+      const titles = lines.map(l => l.replace(/^\d+[.\-):]\s*/, '').trim()).filter(Boolean);
+
+      if (titles.length > 0) {
+        titles.forEach(title => {
+          const el = document.createElement('div');
+          el.className = 'title-option';
+          el.textContent = title;
+          el.onclick = () => {
+            document.querySelectorAll('.title-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('customTitle').value = title;
+            state.selectedTitle = title;
+          };
+          options.appendChild(el);
+        });
+      } else {
+        options.innerHTML = '<p style="color:var(--text2);font-size:13px;font-family:Tajawal,sans-serif;">تعذر توليد العناوين — اكتب عنواناً يدوياً</p>';
+      }
+    }
+  } catch (err) {
+    loading.style.display = 'none';
+    options.innerHTML = '<p style="color:var(--text2);font-size:13px;font-family:Tajawal,sans-serif;">تعذر الاتصال — اكتب عنواناً يدوياً</p>';
+  }
+}
+
+// ===== MEDIA TABS =====
+function switchMediaTab(tab) {
+  ['main','secondary','video'].forEach(t => {
+    document.getElementById('mediaTab-' + t).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab-' + t);
+    btn.className = t === tab ? 'btn btn-primary' : 'btn btn-secondary';
+    btn.style.cssText = 'flex:1;font-size:13px;padding:10px 6px;';
+  });
+}
+
+// ===== SECONDARY IMAGES =====
+async function handleSecondaryImages(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  const info = document.getElementById('secondaryInfo');
+  const preview = document.getElementById('secondaryImagesPreview');
+  info.style.display = 'block';
+  info.innerHTML = `⏳ جارٍ رفع ${files.length} صورة...`;
+  preview.innerHTML = '';
+  state.secondaryImages = [];
+
+  let uploaded = 0;
+  for (const file of files) {
+    const localUrl = await new Promise(res => {
+      const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file);
+    });
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'sec-thumb-wrap';
+    thumbWrap.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);';
+    const statusId = 'sec-status-' + uploaded;
+    thumbWrap.innerHTML = `<span style="font-size:16px;color:var(--text2);">⠿</span>
+      <img src="${localUrl}" style="width:60px;height:40px;object-fit:cover;border-radius:6px;">
+      <div style="flex:1;">
+        <div style="height:3px;background:var(--border);border-radius:2px;margin-bottom:4px;"><div id="pb-${uploaded}" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width 0.3s;"></div></div>
+        <span id="${statusId}" style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;">⏳ جارٍ الرفع...</span>
+      </div>`;
+    preview.appendChild(thumbWrap);
+
+    // Fake progress
+    let pct = 0;
+    const iv = setInterval(() => {
+      pct = Math.min(pct + Math.random() * 20, 88);
+      const bar = document.getElementById('pb-' + uploaded);
+      if (bar) bar.style.width = pct + '%'; else clearInterval(iv);
+    }, 250);
+
+    try {
+      const url = await uploadImageToImgur(file);
+      clearInterval(iv);
+      const bar = document.getElementById('pb-' + uploaded);
+      if (bar) { bar.style.width = '100%'; bar.style.background = 'var(--accent3)'; }
+      state.secondaryImages.push({ url });
+      uploaded++;
+      const copyId = 'copy-sec-' + uploaded;
+      document.getElementById(statusId).innerHTML = '✅ تم الرفع — <button id="' + copyId + '" onclick="navigator.clipboard.writeText(\'' + url + '\').then(()=>{this.textContent=\'✅ تم النسخ!\';setTimeout(()=>this.textContent=\'📋 نسخ الرابط\',2000)})" style="background:var(--surface);border:1px solid var(--border);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:Cairo,sans-serif;">📋 نسخ الرابط</button>';
+    } catch(e) {
+      clearInterval(iv);
+      document.getElementById(statusId).textContent = '❌ فشل الرفع — حاول مرة ثانية';
+    }
+  }
+  info.innerHTML = `✅ تم رفع ${uploaded} من ${files.length} صورة — اسحب لإعادة الترتيب`;
+  makeDraggable();
+}
+
+// ===== VIDEO =====
+function handleVideoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const wrap = document.getElementById('videoPreviewWrap');
+  const video = document.getElementById('videoPreview');
+  const info = document.getElementById('videoInfo');
+  const localUrl = URL.createObjectURL(file);
+  video.src = localUrl;
+  wrap.style.display = 'block';
+  info.style.display = 'block';
+  info.innerHTML = `⏳ جارٍ رفع الفيديو على Cloudinary...`;
+  uploadVideoToCloudinary(file).then(url => {
+    state.videoData = { type: 'url', embed: `<video controls style="width:100%;border-radius:8px;margin:16px 0;display:block;"><source src="${url}" type="${file.type}">المتصفح لا يدعم الفيديو</video>` };
+    info.innerHTML = `✅ تم الرفع — <a href="${url}" target="_blank" style="color:var(--accent3)">عرض ↗</a>`;
+  }).catch(e => {
+    // fallback: use blob URL (won't work on Blogger, warn user)
+    state.videoData = null;
+    info.innerHTML = `❌ فشل رفع الفيديو: ${e.message}`;
+  });
+}
+
+async function uploadVideoToCloudinary(file) {
+  const cloudName = 'dhojq71rg';
+  const apiKey = '272856574175443';
+  const apiSecret = 'MfDjMga5vyi6IIEzreDLExpy0e8';
+  const timestamp = Math.round(new Date().getTime() / 1000);
+  const strToSign = `timestamp=${timestamp}${apiSecret}`;
+  const msgBuffer = new TextEncoder().encode(strToSign);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', timestamp);
+  formData.append('signature', signature);
+  formData.append('resource_type', 'video');
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { method: 'POST', body: formData });
+  if (!res.ok) throw new Error('فشل رفع الفيديو');
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.secure_url;
+}
+
+// ===== STEP 2 → 3: IMAGE =====
+async function goToImage() {
+  const custom = document.getElementById('customTitle').value.trim();
+  if (!custom && !state.selectedTitle) { alert('الرجاء اختيار أو كتابة عنوان'); return; }
+  state.selectedTitle = custom || state.selectedTitle;
+
+  document.getElementById('titlesStep').style.display = 'none';
+  document.getElementById('imageStep').style.display = 'block';
+  setStep(3);
+}
+
+// ===== FILE UPLOAD — auto-upload to Imgur immediately =====
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const w = img.width, h = img.height;
+      const warning = document.getElementById('imageWarning');
+
+      let warnMsg = '';
+      if (w < 800) warnMsg = `⚠️ الصورة صغيرة (${w}×${h}px) — يُفضل 1200×675px أو أكبر`;
+      else if (Math.abs(w/h - 16/9) > 0.2) warnMsg = `⚠️ النسبة مش 16:9 (${w}×${h}px) — ممكن تظهر مقطوعة`;
+
+      if (warnMsg) { warning.textContent = warnMsg; warning.style.display = 'block'; }
+      else warning.style.display = 'none';
+
+      const preview = document.getElementById('uploadPreview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      document.getElementById('customImageUrl').value = '';
+      state.uploadedImageFile = file;
+      state.uploadedImageBase64 = null;
+      state.selectedImage = null;
+      state._imageUploadPromise = null;
+
+      const progress = showUploadProgress('imageInfo', '⏳ جارٍ رفع الصورة...');
+      const doUpload = uploadImageToImgur(file);
+      state._imageUploadPromise = doUpload;
+
+      doUpload.then(url => {
+        state.selectedImage = url;
+        state.uploadedImageFile = null;
+        state._imageUploadPromise = null;
+        progress.finish(`✅ تم الرفع — <a href="${url}" target="_blank" style="color:var(--accent3)">عرض ↗</a> &nbsp;<button onclick="navigator.clipboard.writeText('${url}').then(()=>{this.textContent='✅';setTimeout(()=>this.textContent='📋 نسخ',2000)})" style="background:var(--surface);border:1px solid var(--border);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:Cairo,sans-serif;">📋 نسخ</button>`);
+      }).catch(err => {
+        progress.finish(`<span style="color:var(--accent2)">❌ فشل الرفع: ${err.message}</span>`);
+      });
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+
+
+// ===== UPLOAD IMAGE TO CLOUDINARY =====
+async function uploadImageToImgur(file) {
+  const cloudName = 'dhojq71rg';
+  const apiKey = '272856574175443';
+  const apiSecret = 'MfDjMga5vyi6IIEzreDLExpy0e8';
+
+  // Generate SHA1 signature
+  const timestamp = Math.round(new Date().getTime() / 1000);
+  const strToSign = `timestamp=${timestamp}${apiSecret}`;
+  const msgBuffer = new TextEncoder().encode(strToSign);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', timestamp);
+  formData.append('signature', signature);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error('فشل رفع الصورة على Cloudinary');
+  const data = await res.json();
+  if (data.error) throw new Error('خطأ Cloudinary: ' + data.error.message);
+  return data.secure_url;
+}
+
+// ===== SCHEDULE =====
+function setSchedule(mode) {
+  state.scheduleMode = mode;
+  document.querySelectorAll('.schedule-opt').forEach(o => o.classList.remove('active'));
+  const optEl = document.getElementById('opt-' + mode);
+  if (optEl) optEl.classList.add('active');
+  const scheduleTime = document.getElementById('scheduleTime');
+  if (scheduleTime) scheduleTime.style.display = mode === 'schedule' ? 'block' : 'none';
+  const publishBtn = document.getElementById('publishBtn');
+  const draftBtn = document.getElementById('draftBtn');
+  if (publishBtn) publishBtn.style.display = mode === 'draft' ? 'none' : 'flex';
+  if (draftBtn) draftBtn.style.display = mode === 'draft' ? 'flex' : 'none';
+}
+
+// ===== STEP 3 → 4 =====
+function goToPublish() {
+  const customImg = document.getElementById('customImageUrl').value.trim();
+  if (customImg && !state.uploadedImageBase64) state.selectedImage = customImg;
+
+  document.getElementById('imageStep').style.display = 'none';
+  document.getElementById('publishStep').style.display = 'block';
+  setStep(4);
+
+  document.getElementById('previewTitle').textContent = state.selectedTitle;
+
+  if (state.selectedImage) {
+    document.getElementById('previewImageContainer').style.display = 'block';
+    document.getElementById('previewImage').src = state.selectedImage;
+  }
+
+  // توليد slug تلقائي من العنوان
+  generateSlug();
+
+  // Set default datetime to now
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('publishDateTime').value = now.toISOString().slice(0, 16);
+  showSmartTimeSuggestion();
+}
+
+function generateSlug() {
+  const title = state.selectedTitle || document.getElementById('previewTitle')?.textContent || '';
+  if (!title) return;
+
+  const stopWords = new Set([
+    'a','an','the','and','or','but','in','on','at','to','for','of','with',
+    'by','from','is','it','its','this','that','was','are','be','been','being',
+    'has','have','had','do','does','did','will','would','could','should','may',
+    'might','can','not','no','so','yet','as','if','then','than','too','very',
+    'just','into','about','up','out','what','how','why','who','which','your',
+    'my','our','their','his','her','we','they','you','i','really','actually',
+    'still','even','also','here','there','new','best','top','most','more',
+    'all','any','both','each','few','many','some','such','own','same','other'
+  ]);
+
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 1 && !stopWords.has(w))
+    .slice(0, 6)
+    .join('-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  const input = document.getElementById('slugInput');
+  if (input) {
+    input.value = slug;
+    updateSlugPreview(slug);
+  }
+}
+
+function cleanSlugInput(input) {
+  let val = input.value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-');
+  input.value = val;
+  updateSlugPreview(val);
+}
+
+function updateSlugPreview(slug) {
+  const el = document.getElementById('slugPreview');
+  if (!el) return;
+  const len = slug.length;
+  const color = len > 0 && len <= 60 ? 'var(--accent3)' : len > 60 ? 'var(--accent2)' : 'var(--text2)';
+  el.innerHTML = `<span style="color:${color}">gotoolradar.com/${slug || '...'}</span> <span style="color:var(--text2)">(${len} حرف)</span>`;
+}
+
+// ===== PUBLISH =====
+async function publishNow(asDraft) {
+  const btn = asDraft ? document.getElementById('draftBtn') : document.getElementById('publishBtn');
+  const loading = document.getElementById('publishLoading');
+  const success = document.getElementById('successAlert');
+  const error = document.getElementById('errorAlert');
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  success.style.display = 'none';
+  error.style.display = 'none';
+
+  try {
+    // Build content: strip leading H1/H2 to avoid title duplication in Blogger
+    let articleBody = state.article.replace(/^\s*<h[12][^>]*>.*?<\/h[12]>\s*/i, '').trim();
+
+    // Auto-inject hero image URL into JSON-LD schema
+    if (state.selectedImage) {
+      articleBody = articleBody.replace(/HERO_IMAGE_URL/g, state.selectedImage);
+    }
+
+    // Remove any trailing image (bare or wrapped in div/p) at the end of the article (to avoid duplicate main image)
+    articleBody = articleBody
+      .replace(/(<(?:div|p)[^>]*>\s*)?<img\s[^>]*?(?:src=["'][^"']*["'])[^>]*\/?>(\s*<\/(?:div|p)>)?\s*$/i, '')
+      .trim();
+
+    // Build content: image first, then HTML code
+    const imgSizeEl = document.getElementById('imageSize');
+    const imgSize = imgSizeEl ? imgSizeEl.value : 'original';
+    const imgStyle = imgSize === 'small' ? 'width:200px;max-width:100%;border-radius:8px;margin-bottom:24px;display:block;' : imgSize === 'medium' ? 'width:400px;max-width:100%;border-radius:8px;margin-bottom:24px;display:block;' : 'width:100%;border-radius:8px;margin-bottom:24px;display:block;';
+    // Insert image after first script tag
+    function insertImageIntoContent(html, imgTag) {
+      const first = html.indexOf('<\/script>');
+      if (first !== -1) {
+        const insertAt = first + '<\/script>'.length;
+        return html.slice(0, insertAt) + '\n' + imgTag + '\n' + html.slice(insertAt);
+      }
+      return imgTag + '\n' + html;
+    }
+
+    let content = articleBody;
+
+    // Generate descriptive alt text for an image using a free vision model via OpenRouter
+    async function generateAltText(imageUrl, fallbackText) {
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.geminiKey}`
+          },
+          body: JSON.stringify({
+            model: 'meta-llama/llama-4-maverick:free',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'text', text: 'Describe this image in 5-10 words for use as an HTML alt attribute. English only. No punctuation at the end. No quotes. Just the description.' },
+                { type: 'image_url', image_url: { url: imageUrl } }
+              ]
+            }]
+          })
+        });
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content?.trim();
+        if (text) {
+          return text.replace(/["']/g, '').replace(/\.$/, '').slice(0, 125);
+        }
+        return fallbackText;
+      } catch (e) {
+        return fallbackText;
+      }
+    }
+
+    // If image upload is still in progress, wait for it
+    if (state._imageUploadPromise) {
+      try {
+        const imgUrl = await state._imageUploadPromise;
+        state.selectedImage = imgUrl;
+      } catch(e) { /* ignore, will proceed without image */ }
+    }
+
+    if (state.uploadedImageFile && !state.selectedImage) {
+      const imgUrl = await uploadImageToImgur(state.uploadedImageFile);
+      const imgTag = `<img src="${imgUrl}" alt="${state.selectedTitle}" style="${imgStyle}">`;
+      content = insertImageIntoContent(content, imgTag);
+    } else if (state.selectedImage) {
+      const imgTag = `<img src="${state.selectedImage}" alt="${state.selectedTitle}" style="${imgStyle}">`;
+      content = insertImageIntoContent(content, imgTag);
+    }
+    if (state.secondaryImages && state.secondaryImages.length > 0) {
+      // Generate descriptive alt text for each secondary image (with fallback)
+      for (let i = 0; i < state.secondaryImages.length; i++) {
+        const fallback = `${state.selectedTitle} - Screenshot ${i + 1}`;
+        state.secondaryImages[i].alt = await generateAltText(state.secondaryImages[i].url, fallback);
+      }
+
+      // Find </p> positions that are direct children of .content div
+      // Strategy: find the .content div, then track depth=1 means we're directly inside it
+      const topLevelPPositions = [];
+      const html = content;
+
+      // Find where .content starts — look for <div class="content"> or similar
+      const contentDivMatch = html.match(/<div[^>]+class=["'][^"']*\bcontent\b[^"']*["'][^>]*>/i);
+      const scanStart = contentDivMatch
+        ? html.indexOf(contentDivMatch[0]) + contentDivMatch[0].length
+        : 0;
+
+      // From scanStart, track div depth. depth=0 means directly inside .content
+      const events = [];
+      let m;
+      const openRe  = /<div(?:\s[^>]*)?\s*>/gi;
+      const closeRe = /<\/div\s*>/gi;
+      const pCloseRe = /<\/p\s*>/gi;
+      openRe.lastIndex  = scanStart;
+      closeRe.lastIndex = scanStart;
+      pCloseRe.lastIndex = scanStart;
+      while ((m = openRe.exec(html))  !== null) events.push({ pos: m.index, type: 'open',  end: m.index + m[0].length });
+      while ((m = closeRe.exec(html)) !== null) events.push({ pos: m.index, type: 'close', end: m.index + m[0].length });
+      while ((m = pCloseRe.exec(html))!== null) events.push({ pos: m.index, type: 'p',     end: m.index + m[0].length });
+      events.sort((a, b) => a.pos - b.pos);
+
+      let divDepth = 0;
+      for (const ev of events) {
+        if (ev.type === 'open')        { divDepth++; }
+        else if (ev.type === 'close')  { divDepth = Math.max(0, divDepth - 1); }
+        else if (ev.type === 'p' && divDepth === 0) { topLevelPPositions.push(ev.end); }
+      }
+
+      if (topLevelPPositions.length === 0) {
+        // No top-level paragraphs — append all at end
+        const allImgsHtml = state.secondaryImages.map((img, idx) =>
+          `<img src="${img.url}" alt="${img.alt}" style="width:100%;border-radius:8px;margin:20px 0;display:block;">`
+        ).join('\n');
+        content = content + '\n' + allImgsHtml;
+      } else {
+        // Distribute images evenly across top-level paragraphs, skip the first one
+        const numImgs = state.secondaryImages.length;
+        const available = topLevelPPositions.length - 1;
+        const insertIndices = [];
+        if (available <= 0) {
+          // Only one paragraph — put all after it
+          for (let j = 0; j < numImgs; j++) insertIndices.push(0);
+        } else if (numImgs >= available) {
+          for (let j = 1; j < topLevelPPositions.length; j++) insertIndices.push(j);
+          while (insertIndices.length < numImgs) insertIndices.push(topLevelPPositions.length - 1);
+        } else {
+          const step = available / numImgs;
+          for (let j = 0; j < numImgs; j++) {
+            insertIndices.push(Math.round(1 + j * step));
+          }
+        }
+        // Build insertion map and sort descending to avoid offset shifts
+        const insertMap = [];
+        for (let j = 0; j < numImgs; j++) {
+          const pIdx = Math.min(insertIndices[j] ?? topLevelPPositions.length - 1, topLevelPPositions.length - 1);
+          const pos  = topLevelPPositions[pIdx];
+          const imgHtml = `\n<img src="${state.secondaryImages[j].url}" alt="${state.secondaryImages[j].alt}" style="width:100%;border-radius:8px;margin:20px 0;display:block;">\n`;
+          insertMap.push({ pos, imgHtml });
+        }
+        insertMap.sort((a, b) => b.pos - a.pos);
+        for (const { pos, imgHtml } of insertMap) {
+          content = content.slice(0, pos) + imgHtml + content.slice(pos);
+        }
+      }
+    }
+
+    const token = state.accessToken;
+
+    if (token === 'DEMO_TOKEN') {
+      await new Promise(r => setTimeout(r, 1500));
+      success.style.display = 'block';
+      success.innerHTML = asDraft
+        ? `📝 تم الحفظ كمسودة! (وضع تجريبي)`
+        : `✅ تم النشر بنجاح! (وضع تجريبي)<br><small>بعد ربط Google الحقيقي سينشر على gotoolradar.com</small>`;
+    } else {
+      const body = {
+        kind: 'blogger#post',
+        title: state.selectedTitle,
+        content: content,
+        labels: state.selectedCategory
+          ? [state.selectedCategory, ...(state.tags || []).filter(t => t !== state.selectedCategory)]
+          : state.tags,
+        images: state.selectedImage ? [{ url: state.selectedImage }] : undefined
+      };
+
+      // أضف الـ slug إذا موجود
+      const slugVal = document.getElementById('slugInput')?.value?.trim();
+      if (slugVal) body.url = `https://www.gotoolradar.com/${slugVal}.html`;
+
+      // Add scheduled date if needed
+      if (state.scheduleMode === 'schedule') {
+        const dt = document.getElementById('publishDateTime').value;
+        if (dt) body.published = new Date(dt).toISOString();
+      }
+
+      const status = asDraft ? '?isDraft=true' : '';
+      const res = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts/${status}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const post = await res.json();
+
+      success.style.display = 'block';
+      if (asDraft) {
+        success.innerHTML = `📝 تم الحفظ كمسودة بنجاح!`;
+        saveToHistory(state.selectedTitle, null, true, null);
+        showPostPublishCard(null);
+      } else {
+        const scheduledDate = state.scheduleMode === 'schedule' ? document.getElementById('publishDateTime').value : null;
+        success.innerHTML = `✅ تم النشر بنجاح! <a href="${post.url}" target="_blank" style="color:var(--accent3)">عرض المقال ←</a>`;
+        saveToHistory(state.selectedTitle, post.url, false, scheduledDate);
+        showPostPublishCard(post.url);
+      }
+    }
+
+  } catch (err) {
+    error.style.display = 'block';
+    if (err.message && err.message.includes('401')) {
+      localStorage.removeItem('bloggerToken');
+      state.accessToken = '';
+      error.innerHTML = '❌ انتهت جلسة تسجيل الدخول — <button onclick="signInWithGoogle()" style="background:var(--accent);color:white;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;margin-top:8px;">🔄 تسجيل الدخول من جديد</button>';
+    } else {
+      let errMsg = err.message || '';
+      if (errMsg.includes('403')) errMsg = 'ليس لديك صلاحية النشر على هذا المدونة — تحقق من Blog ID في الإعدادات';
+      else if (errMsg.includes('400')) errMsg = 'بيانات غير صحيحة — تحقق من المحتوى والعنوان';
+      else if (errMsg.includes('404')) errMsg = 'المدونة غير موجودة — تحقق من Blog ID في الإعدادات';
+      else if (errMsg.includes('500') || errMsg.includes('503')) errMsg = 'خطأ في خوادم Blogger — حاول مرة أخرى بعد قليل';
+      else if (errMsg.includes('NetworkError') || errMsg.includes('Failed to fetch')) errMsg = 'تعذر الاتصال بالإنترنت — تحقق من اتصالك';
+      error.innerHTML = '❌ ' + errMsg;
+    }
+  } finally {
+    btn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+
+// ===== CATEGORY =====
+if (!state.selectedCategory) state.selectedCategory = '';
+
+function toggleCategory(btn, cat) {
+  const allBtns = document.querySelectorAll('.cat-btn');
+  allBtns.forEach(b => b.classList.remove('active'));
+  if (state.selectedCategory === cat) {
+    state.selectedCategory = '';
+  } else {
+    state.selectedCategory = cat;
+    btn.classList.add('active');
+  }
+}
+
+function syncCategoryBtn() {
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(state.selectedCategory) && state.selectedCategory !== '');
+  });
+}
+
+async function autoCategorize() {
+  const title = state.selectedTitle || document.getElementById('customTitle')?.value?.trim() || '';
+  const content = document.getElementById('articleContent')?.value?.trim() || '';
+  const text = title || content.substring(0, 200);
+  if (!text) { alert('أدخل المحتوى أو العنوان أولاً'); return; }
+
+  const btn = document.getElementById('autoCatBtn');
+  btn.disabled = true; btn.textContent = '⏳ جارٍ التصنيف...';
+
+  const CATEGORIES = ['AI Video','AI Image','AI Audio','AI Productivity','AI Builders','AI chatbots','AI Coding','AI Design','AI Writing'];
+  const prompt = `You are a categorization assistant for ToolRadar, an AI tools review website.
+Given this blog post title/content, assign it to EXACTLY ONE category:
+${CATEGORIES.map((c,i)=>(i+1)+'. '+c).join('\n')}
+Rules:
+- AI Video = video generation, editing, animation
+- AI Image = image generation, editing, upscaling
+- AI Audio = voice, music, speech, sound
+- AI Productivity = note-taking, automation, workflow tools
+- AI Builders = no-code website/app builders
+- AI Chatbots = AI assistants, conversational AI
+- AI Coding = coding assistants, developer tools
+- AI Design = UI/UX, graphic design, presentations
+- AI Writing = copywriting, content writing, translation, SEO writing
+Text: "${text.substring(0,300)}"
+Respond with ONLY the category name.`;
+
+  try {
+    const res = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const result = data.choices?.[0]?.message?.content?.trim();
+    const matched = CATEGORIES.find(c => result && result.includes(c));
+    if (matched) {
+      state.selectedCategory = matched;
+      syncCategoryBtn();
+    }
+  } catch(e) {
+    alert('تعذر التصنيف التلقائي — ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '🤖 صنّف تلقائياً';
+}
+
+async function openTagger() {
+  if (!state.accessToken || state.accessToken === 'DEMO_TOKEN') {
+    alert('⚠️ يجب تسجيل الدخول بـ Google أولاً');
+    return;
+  }
+  if (!state.geminiKey) state.geminiKey = localStorage.getItem('geminiKey') || '';
+  if (!state.geminiKey) {
+    alert('⚠️ يجب إدخال مفتاح OpenRouter في الإعدادات أولاً');
+    return;
+  }
+
+  const btn = document.querySelector('[onclick="openTagger()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ <span class="hdr-label">جارٍ...</span>'; }
+
+  try {
+    // Fetch posts without labels
+    let allUnlabeled = [];
+    let pageToken = '';
+    let page = 0;
+    do {
+      const url = `https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts?maxResults=20&status=live${pageToken ? '&pageToken=' + pageToken : ''}`;
+      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${state.accessToken}` } });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const posts = (data.items || []).filter(p => !p.labels || p.labels.length === 0);
+      allUnlabeled = allUnlabeled.concat(posts);
+      pageToken = data.nextPageToken || '';
+      page++;
+    } while (pageToken && page < 5);
+
+    if (allUnlabeled.length === 0) {
+      alert('✅ جميع المقالات مصنفة بالفعل!');
+      return;
+    }
+
+    const confirmed = confirm(`🏷️ وُجد ${allUnlabeled.length} مقال بدون تصنيف.
+
+هل تريد تصنيفهم تلقائياً بالـ AI؟`);
+    if (!confirmed) return;
+
+    if (btn) btn.innerHTML = `⏳ <span class="hdr-label">0/${allUnlabeled.length}</span>`;
+
+    const CATEGORIES = ['AI Tools', 'Productivity', 'Design', 'Developer Tools', 'Marketing', 'SEO', 'Video', 'Audio', 'Writing', 'Finance', 'Education', 'Security', 'Automation', 'Social Media', 'Other'];
+
+    let done = 0;
+    let errors = 0;
+
+    for (const post of allUnlabeled) {
+      try {
+        // Get label from AI
+        const plainText = post.title + '. ' + (post.content || '').replace(/<[^>]+>/g, '').substring(0, 500);
+        const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+          body: JSON.stringify({
+            model: 'openrouter/auto',
+            messages: [{ role: 'user', content: `Classify this article into exactly ONE category from this list: ${CATEGORIES.join(', ')}.
+
+Article: ${plainText}
+
+Reply with only the category name, nothing else.` }]
+          })
+        });
+        const aiData = await aiRes.json();
+        const label = aiData.choices?.[0]?.message?.content?.trim() || 'Other';
+        const finalLabel = CATEGORIES.find(c => label.toLowerCase().includes(c.toLowerCase())) || 'Other';
+
+        // Update post with label
+        await fetch(`https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts/${post.id}`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${state.accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ labels: [finalLabel] })
+        });
+
+        done++;
+        if (btn) btn.innerHTML = `⏳ <span class="hdr-label">${done}/${allUnlabeled.length}</span>`;
+        await new Promise(r => setTimeout(r, 500));
+      } catch(e) {
+        errors++;
+      }
+    }
+
+    alert(`✅ تم تصنيف ${done} مقال بنجاح!${errors > 0 ? `
+⚠️ فشل ${errors} مقال` : ''}`);
+
+  } catch(e) {
+    alert('❌ خطأ: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🏷️ <span class="hdr-label">الأداة</span>'; }
+  }
+}
+
+// ===== SUGGEST TAGS =====
+async function suggestTags(btnEl) {
+  const content = document.getElementById('articleContent').value.trim();
+  if (!content) { alert('الرجاء إدخال كود المقال أولاً'); return; }
+  if (!state.geminiKey) state.geminiKey = localStorage.getItem('geminiKey') || '';
+  if (!state.geminiKey) { alert('⚠️ أدخل مفتاح OpenRouter في الإعدادات أولاً'); return; }
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = content;
+  const plainText = (tempDiv.innerText || tempDiv.textContent || '').substring(0, 2000);
+  const titleEl = document.getElementById('selectedTitle');
+  const title = titleEl ? titleEl.textContent.trim() : '';
+
+  const btn = btnEl || event?.target;
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+
+  const smartPrompt = `You are a precise tag classifier for an AI tools review website called ToolRadar.
+You MUST choose ONLY from this exact list (pick 1-2 most relevant):
+- AI Video → video generation, editing, animation, text-to-video tools
+- AI Image → image generation, editing, upscaling, design tools  
+- AI Audio → voice, music, speech, sound generation tools
+- AI Productivity → task management, automation, workflow, note-taking, scheduling
+- AI Builders → no-code, app builders, website builders, agent builders
+- AI chatbots → chatbots, conversational AI, AI assistants, messaging bots
+- AI Coding → code generation, developer tools, IDE, debugging, software engineering
+- AI Writing → writing, copywriting, content creation, grammar, paraphrasing
+- AI Design → UI/UX design, graphic design, presentation, branding tools
+
+Title: ${title}
+Article excerpt: ${plainText.substring(0, 1500)}
+
+Reply with ONLY the matching tags separated by commas. No explanation. No new tags.`;
+
+  try {
+    const res = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: smartPrompt }] })
+    });
+    const data = await res.json();
+    if (data.choices && data.choices[0]) {
+      const ALLOWED_TAGS = ['AI Video','AI Image','AI Audio','AI Productivity','AI Builders','AI chatbots','AI Coding','AI Writing','AI Design'];
+
+      const raw = data.choices[0].message.content
+        .split(/[,،]/)
+        .map(t => t.trim().replace(/^[-•*]\s*/, ''))
+        .filter(t => t && t.length < 40);
+
+      raw.forEach(newTag => {
+        const newLow = newTag.toLowerCase().replace(/\s+/g,'');
+        // Find best match from allowed list
+        const match = ALLOWED_TAGS.find(allowed => {
+          const aLow = allowed.toLowerCase().replace(/\s+/g,'');
+          return aLow === newLow || aLow.includes(newLow) || newLow.includes(aLow);
+        });
+        const finalTag = match || null;
+        if (finalTag && !state.tags.includes(finalTag)) {
+          state.tags.push(finalTag);
+        }
+      });
+      renderTags();
+    }
+  } catch(e) { alert('تعذر الاقتراح'); }
+  finally { if (btn) { btn.textContent = origText || '✨ اقتراح تلقائي'; btn.disabled = false; } }
+}
+
+
+// ===== LABEL FIXER =====
+const FIXER_ALLOWED = ['AI Video','AI Image','AI Audio','AI Productivity','AI Builders','AI chatbots','AI Coding','AI Writing','AI Design'];
+let fixerActive = [...FIXER_ALLOWED];
+let fixerPosts = [];
+let fixerFixed = 0;
+
+const FIXER_MAP = {
+  'al tools':null,'ai tools':null,'aitools':null,'tools':null,'artificial intelligence':null,'ai':null,
+  'aivideo':'AI Video','ai-video':'AI Video','video':'AI Video',
+  'aiimage':'AI Image','ai-image':'AI Image','image':'AI Image','images':'AI Image',
+  'aiaudio':'AI Audio','ai-audio':'AI Audio','audio':'AI Audio','music':'AI Audio','ai udio':'AI Audio','udio':'AI Audio',
+  'aiproductivity':'AI Productivity','productivity':'AI Productivity','automation':'AI Productivity',
+  'aibuilders':'AI Builders','builders':'AI Builders','ai builder':'AI Builders','no-code':'AI Builders',
+  'aichatbots':'AI chatbots','chatbots':'AI chatbots','chatbot':'AI chatbots',
+  'aicoding':'AI Coding','coding':'AI Coding','code':'AI Coding','developer tools':'AI Coding','software engineering':'AI Coding','software':'AI Coding','development':'AI Coding',
+  'aiwriting':'AI Writing','writing':'AI Writing','content':'AI Writing',
+  'aidesign':'AI Design','design':'AI Design',
+  'social media':null,'education':null,'other':null,'general':null,
+};
+
+function fixerRenderTags() {
+  const grid = document.getElementById('fixerTagsGrid');
+  if (!grid) return;
+  grid.innerHTML = FIXER_ALLOWED.map(t =>
+    `<div onclick="fixerToggleTag('${t}')" id="ftag_${t.replace(/ /g,'_')}"
+      style="padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--accent3);background:rgba(67,233,123,0.15);color:var(--accent3);transition:all .2s;">${t}</div>`
+  ).join('');
+}
+
+function fixerToggleTag(tag) {
+  const el = document.getElementById('ftag_' + tag.replace(/ /g,'_'));
+  if (fixerActive.includes(tag)) {
+    fixerActive = fixerActive.filter(t => t !== tag);
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'var(--surface2)';
+    el.style.color = 'var(--text2)';
+  } else {
+    fixerActive.push(tag);
+    el.style.borderColor = 'var(--accent3)';
+    el.style.background = 'rgba(67,233,123,0.15)';
+    el.style.color = 'var(--accent3)';
+  }
+}
+
+function fixerFixLabels(labels) {
+  const result = new Set();
+  (labels || []).forEach(label => {
+    const lLow = label.toLowerCase().trim();
+    const exact = fixerActive.find(a => a.toLowerCase() === lLow);
+    if (exact) { result.add(exact); return; }
+    if (FIXER_MAP.hasOwnProperty(lLow)) {
+      const mapped = FIXER_MAP[lLow];
+      if (mapped && fixerActive.includes(mapped)) result.add(mapped);
+      return;
+    }
+    const fuzzy = fixerActive.find(a => {
+      const aL = a.toLowerCase().replace(/\s+/g,'');
+      const lNoSpace = lLow.replace(/\s+/g,'');
+      return aL === lNoSpace || aL.includes(lNoSpace) || lNoSpace.includes(aL);
+    });
+    if (fuzzy) result.add(fuzzy);
+  });
+  return [...result];
+}
+
+function fixerLabelsChanged(orig, fixed) {
+  return [...orig].sort().join(',') !== [...fixed].sort().join(',');
+}
+
+function fixerLog(msg, color) {
+  const div = document.getElementById('fixerLog');
+  if (!div) return;
+  const el = document.createElement('div');
+  el.style.color = color || 'var(--accent)';
+  el.style.borderBottom = '1px solid var(--border)';
+  el.style.padding = '1px 0';
+  el.textContent = msg;
+  div.appendChild(el);
+  div.scrollTop = div.scrollHeight;
+}
+
+async function fixerLoadPosts() {
+  const token = state.accessToken || localStorage.getItem('accessToken') || '';
+  const blogId = state.blogId || localStorage.getItem('blogId') || '';
+  if (!token) { alert('⚠️ Token منتهي — اضغط زر تجديد أولاً'); return; }
+
+  const btn = document.getElementById('fixerLoadBtn');
+  btn.textContent = '⏳ جاري الجلب...'; btn.disabled = true;
+  document.getElementById('fixerLogCard').style.display = 'block';
+  document.getElementById('fixerLog').innerHTML = '';
+  fixerPosts = [];
+
+  fixerLog('⏳ جاري جلب المقالات...', 'var(--accent)');
+  let pageToken = '', page = 1;
+  try {
+    do {
+      const url = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts?maxResults=500&status=live&status=scheduled&status=draft&fetchBodies=false${pageToken ? '&pageToken='+pageToken : ''}`;
+      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      if (data.error) { fixerLog('❌ ' + data.error.message, 'var(--accent2)'); btn.textContent = '📥 جلب وتحليل المقالات'; btn.disabled = false; return; }
+      (data.items || []).forEach(p => fixerPosts.push(p));
+      pageToken = data.nextPageToken || '';
+      fixerLog(`صفحة ${page++}: ${(data.items||[]).length} مقال`, 'var(--text2)');
+    } while (pageToken);
+
+    let needFix = 0, okCount = 0;
+    fixerPosts.forEach(p => {
+      const fixed = fixerFixLabels(p.labels || []);
+      if (fixerLabelsChanged(p.labels || [], fixed)) needFix++; else okCount++;
+    });
+
+    const emptyPosts = fixerPosts.filter(p => !p.labels || p.labels.length === 0).length;
+
+    document.getElementById('fixerStats').style.display = 'block';
+    document.getElementById('fStatTotal').textContent = fixerPosts.length;
+    document.getElementById('fStatNeed').textContent = needFix;
+    document.getElementById('fStatFixed').textContent = 0;
+    document.getElementById('fStatEmpty').textContent = emptyPosts;
+    document.getElementById('fixerStartBtn').style.display = needFix > 0 ? 'flex' : 'none';
+    document.getElementById('fixerClassifyBtn').style.display = emptyPosts > 0 ? 'flex' : 'none';
+
+    fixerLog(`✅ ${fixerPosts.length} مقال — ${needFix} تحتاج تصليح — ${emptyPosts} بدون تصنيف`, 'var(--accent3)');
+    btn.textContent = '🔄 جلب من جديد'; btn.disabled = false;
+  } catch(e) { fixerLog('❌ ' + e.message, 'var(--accent2)'); btn.textContent = '📥 جلب وتحليل المقالات'; btn.disabled = false; }
+}
+
+
+async function fixerClassifyEmpty() {
+  const token = state.accessToken || localStorage.getItem('accessToken') || '';
+  const blogId = state.blogId || localStorage.getItem('blogId') || '';
+  const apiKey = state.geminiKey || localStorage.getItem('geminiKey') || '';
+  if (!token) { alert('⚠️ Token منتهي — اضغط تجديد'); return; }
+  if (!apiKey) { alert('⚠️ أدخل مفتاح OpenRouter في الإعدادات'); return; }
+
+  const emptyPosts = fixerPosts.filter(p => !p.labels || p.labels.length === 0);
+  if (emptyPosts.length === 0) { fixerLog('✅ لا توجد مقالات فاضية', 'var(--accent3)'); return; }
+
+  const btn = document.getElementById('fixerClassifyBtn');
+  btn.textContent = '⏳ جاري التصنيف...'; btn.disabled = true;
+  document.getElementById('fixerProgressWrap').style.display = 'block';
+
+  const smartPrompt = (title) => `You are a precise tag classifier for an AI tools review website.
+Choose ONLY 1 or 2 tags from this exact list:
+- AI Video: video generation, editing, animation, text-to-video
+- AI Image: image generation, editing, upscaling
+- AI Audio: voice, music, speech, sound generation
+- AI Productivity: task management, automation, workflow, note-taking, email, scheduling
+- AI Builders: no-code builders, app builders, agent builders, automation platforms
+- AI chatbots: chatbots, conversational AI, AI assistants, messaging
+- AI Coding: code generation, developer tools, IDE, debugging, software engineering
+- AI Writing: writing, copywriting, content creation, grammar, paraphrasing, SEO
+- AI Design: UI/UX design, graphic design, presentation, branding, logo
+
+Article title: "${title}"
+
+Reply with ONLY the tag names separated by commas. No explanation. No other text.`;
+
+  let classified = 0;
+  fixerLog(`🤖 يبدأ تصنيف ${emptyPosts.length} مقال بدون تصنيف...`, 'var(--accent)');
+
+  for (let i = 0; i < emptyPosts.length; i++) {
+    const p = emptyPosts[i];
+    const pct = Math.round((i+1)/emptyPosts.length*100);
+    document.getElementById('fixerProgressBar').style.width = pct + '%';
+
+    try {
+      // Ask AI
+      const aiRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: smartPrompt(p.title || '') }] })
+      });
+      const aiData = await aiRes.json();
+      if (!aiData.choices?.[0]) { fixerLog(`⚠️ AI لم يرد على: ${(p.title||'').substring(0,40)}`, 'var(--text2)'); continue; }
+
+      const raw = aiData.choices[0].message.content.split(/[,،]/).map(t => t.trim()).filter(Boolean);
+      const labels = [];
+      raw.forEach(tag => {
+        const tLow = tag.toLowerCase().replace(/\s+/g,'');
+        const match = fixerActive.find(a => {
+          const aL = a.toLowerCase().replace(/\s+/g,'');
+          return aL === tLow || aL.includes(tLow) || tLow.includes(aL);
+        });
+        if (match && !labels.includes(match)) labels.push(match);
+      });
+
+      if (labels.length === 0) { fixerLog(`⚠️ ما عرف يصنف: ${(p.title||'').substring(0,40)}`, 'var(--text2)'); continue; }
+
+      // Update on Blogger
+      const res = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labels })
+      });
+      const data = await res.json();
+      if (data.error) {
+        fixerLog(`❌ ${(p.title||'').substring(0,40)}: ${data.error.message}`, 'var(--accent2)');
+      } else {
+        classified++;
+        document.getElementById('fStatEmpty').textContent = emptyPosts.length - classified;
+        fixerLog(`✅ ${(p.title||'').substring(0,45)} → ${labels.join(', ')}`, 'var(--accent3)');
+        // Update local
+        p.labels = labels;
+      }
+      await new Promise(r => setTimeout(r, 1200));
+    } catch(e) { fixerLog(`❌ ${(p.title||'').substring(0,40)}: ${e.message}`, 'var(--accent2)'); }
+  }
+
+  fixerLog(`🎉 اكتمل! صُنِّف ${classified} من ${emptyPosts.length} مقال`, 'var(--accent3)');
+  btn.textContent = '✅ اكتمل التصنيف';
+}
+
+async function fixerStart() {
+  const token = state.accessToken || localStorage.getItem('accessToken') || '';
+  const blogId = state.blogId || localStorage.getItem('blogId') || '';
+  if (!token) { alert('⚠️ Token منتهي — اضغط زر تجديد'); return; }
+
+  const btn = document.getElementById('fixerStartBtn');
+  btn.textContent = '⏳ جاري التصليح...'; btn.disabled = true;
+  document.getElementById('fixerProgressWrap').style.display = 'block';
+  fixerFixed = 0;
+
+  const toFix = fixerPosts.filter(p => fixerLabelsChanged(p.labels||[], fixerFixLabels(p.labels||[])));
+  fixerLog(`🚀 يبدأ تصليح ${toFix.length} مقال...`, 'var(--accent)');
+
+  for (let i = 0; i < toFix.length; i++) {
+    const p = toFix[i];
+    const orig = p.labels || [];
+    const fixed = fixerFixLabels(orig);
+    const pct = Math.round((i+1)/toFix.length*100);
+    document.getElementById('fixerProgressBar').style.width = pct + '%';
+
+    try {
+      const res = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labels: fixed })
+      });
+      const data = await res.json();
+      if (data.error) {
+        fixerLog(`❌ ${(p.title||'').substring(0,40)}: ${data.error.message}`, 'var(--accent2)');
+      } else {
+        fixerFixed++;
+        document.getElementById('fStatFixed').textContent = fixerFixed;
+        fixerLog(`✅ ${(p.title||'').substring(0,45)}`, 'var(--accent3)');
+        fixerLog(`   ${orig.join(', ')} → ${fixed.join(', ')}`, 'var(--text2)');
+      }
+      await new Promise(r => setTimeout(r, 800));
+    } catch(e) { fixerLog(`❌ ${(p.title||'').substring(0,40)}: ${e.message}`, 'var(--accent2)'); }
+  }
+
+  fixerLog(`🎉 اكتمل! صُلِّح ${fixerFixed} مقال`, 'var(--accent3)');
+  btn.textContent = '✅ اكتمل التصليح';
+}
+
+// ===== CONTENT CLEANER (citeweb_search:N#N residue) =====
+let cleanerPosts = []; // [{id,title,content,matches}]
+// Pattern A: citeweb_search:20#1web_search:20#7 (chained, no separator)
+const CLEANER_RE_A = /cite(web_search:\d+#\d+)+/g;
+// Pattern B: standalone web_search:20#7
+const CLEANER_RE_B = /web_search:\d+#\d+/g;
+// Pattern C: leftover 'cite' glued to unicode placeholder boxes (e.g. □cite□□□)
+const CLEANER_RE_C = /[\u2580-\u25FF\ufffd]*cite[\u2580-\u25FF\ufffd]+/g;
+// Pattern D: standalone leftover word 'cite' (not part of cited/citation etc.)
+const CLEANER_RE_D = /\bcite\b\s*/g;
+// Pattern E: leftover unicode placeholder boxes (□ etc.) with surrounding spaces
+const CLEANER_RE_E = /\s*[\u2580-\u25FF\ufffd]+\s*/g;
+
+function cleanerCountMatches(content) {
+  if (!content) return 0;
+  const a = content.match(CLEANER_RE_A) || [];
+  const b = content.match(CLEANER_RE_B) || [];
+  const c = content.match(CLEANER_RE_C) || [];
+  const d = content.match(CLEANER_RE_D) || [];
+  const e = content.match(CLEANER_RE_E) || [];
+  return a.length + b.length + c.length + d.length + e.length;
+}
+
+function cleanerClean(content) {
+  return content
+    .replace(CLEANER_RE_A, '')
+    .replace(CLEANER_RE_B, '')
+    .replace(CLEANER_RE_C, '')
+    .replace(CLEANER_RE_D, '')
+    .replace(CLEANER_RE_E, ' ');
+}
+
+
+function cleanerLog(msg, color) {
+  const div = document.getElementById('cleanerLog');
+  if (!div) return;
+  div.style.display = 'block';
+  const el = document.createElement('div');
+  el.style.color = color || 'var(--accent)';
+  el.style.borderBottom = '1px solid var(--border)';
+  el.style.padding = '1px 0';
+  el.textContent = msg;
+  div.appendChild(el);
+  div.scrollTop = div.scrollHeight;
+}
+
+async function cleanerScan() {
+  const token = state.accessToken || localStorage.getItem('accessToken') || '';
+  const blogId = state.blogId || localStorage.getItem('blogId') || '';
+  if (!token) { alert('⚠️ Token منتهي — اضغط زر تجديد أولاً'); return; }
+
+  const btn = document.getElementById('cleanerScanBtn');
+  btn.textContent = '⏳ جاري الفحص...'; btn.disabled = true;
+  document.getElementById('cleanerLog').innerHTML = '';
+  document.getElementById('cleanerLog').style.display = 'block';
+  cleanerPosts = [];
+
+  cleanerLog('⏳ جاري جلب المقالات مع محتواها (قد يأخذ وقت أطول)...', 'var(--accent)');
+  let pageToken = '', page = 1, totalPosts = 0;
+  try {
+    do {
+      const url = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts?maxResults=50&status=live&status=scheduled&status=draft&fetchBodies=true${pageToken ? '&pageToken='+pageToken : ''}`;
+      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      if (data.error) { cleanerLog('❌ ' + data.error.message, 'var(--accent2)'); btn.textContent = '🔍 فحص كل المقالات'; btn.disabled = false; return; }
+
+      (data.items || []).forEach(p => {
+        totalPosts++;
+        const count = cleanerCountMatches(p.content || '');
+        if (count > 0) {
+          cleanerPosts.push({ id: p.id, title: p.title || '', content: p.content, matches: count });
+        }
+      });
+
+      pageToken = data.nextPageToken || '';
+      cleanerLog(`صفحة ${page++}: ${(data.items||[]).length} مقال`, 'var(--text2)');
+    } while (pageToken);
+
+    document.getElementById('cleanerStats').style.display = 'flex';
+    document.getElementById('cStatTotal').textContent = totalPosts;
+    document.getElementById('cStatNeed').textContent = cleanerPosts.length;
+    document.getElementById('cStatFixed').textContent = 0;
+
+    if (cleanerPosts.length > 0) {
+      document.getElementById('cleanerStartBtn').style.display = 'flex';
+      cleanerLog(`✅ ${totalPosts} مقال — ${cleanerPosts.length} مقال فيه بقايا citeweb_search:`, 'var(--accent3)');
+      cleanerPosts.forEach(p => cleanerLog(`   📄 ${p.title.substring(0,50)} — ${p.matches} مرة`, 'var(--text2)'));
+    } else {
+      document.getElementById('cleanerStartBtn').style.display = 'none';
+      cleanerLog(`✅ ${totalPosts} مقال — لا توجد بقايا citeweb_search 🎉`, 'var(--accent3)');
+    }
+    btn.textContent = '🔄 فحص من جديد'; btn.disabled = false;
+  } catch(e) { cleanerLog('❌ ' + e.message, 'var(--accent2)'); btn.textContent = '🔍 فحص كل المقالات'; btn.disabled = false; }
+}
+
+async function cleanerStart() {
+  const token = state.accessToken || localStorage.getItem('accessToken') || '';
+  const blogId = state.blogId || localStorage.getItem('blogId') || '';
+  if (!token) { alert('⚠️ Token منتهي — اضغط زر تجديد'); return; }
+  if (cleanerPosts.length === 0) { cleanerLog('✅ لا يوجد شيء لتنظيفه', 'var(--accent3)'); return; }
+
+  if (!confirm(`سيتم تعديل ${cleanerPosts.length} مقال على Blogger مباشرة لحذف بقايا citeweb_search. متابعة؟`)) return;
+
+  const btn = document.getElementById('cleanerStartBtn');
+  btn.textContent = '⏳ جاري التنظيف...'; btn.disabled = true;
+  document.getElementById('cleanerProgressWrap').style.display = 'block';
+
+  let fixed = 0;
+  for (let i = 0; i < cleanerPosts.length; i++) {
+    const p = cleanerPosts[i];
+    const pct = Math.round((i+1)/cleanerPosts.length*100);
+    document.getElementById('cleanerProgressBar').style.width = pct + '%';
+
+    const cleaned = cleanerClean(p.content);
+
+    try {
+      const res = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts/${p.id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: cleaned })
+      });
+      const data = await res.json();
+      if (data.error) {
+        cleanerLog(`❌ ${p.title.substring(0,45)}: ${data.error.message}`, 'var(--accent2)');
+      } else {
+        fixed++;
+        document.getElementById('cStatFixed').textContent = fixed;
+        cleanerLog(`✅ ${p.title.substring(0,45)} — حُذفت ${p.matches} بقايا`, 'var(--accent3)');
+      }
+      await new Promise(r => setTimeout(r, 800));
+    } catch(e) { cleanerLog(`❌ ${p.title.substring(0,45)}: ${e.message}`, 'var(--accent2)'); }
+  }
+
+  cleanerLog(`🎉 اكتمل! تم تنظيف ${fixed} من ${cleanerPosts.length} مقال`, 'var(--accent3)');
+  btn.textContent = '✅ اكتمل التنظيف';
+  document.getElementById('cStatNeed').textContent = cleanerPosts.length - fixed;
+  cleanerPosts = cleanerPosts.filter((_,idx) => false); // clear after run
+}
+
+// ===== REGEN TITLES =====
+async function regenTitles() {
+  document.getElementById('titleOptions').innerHTML = '';
+  document.getElementById('regenBtn').style.display = 'none';
+  document.getElementById('titlesLoading').style.display = 'flex';
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = state.article;
+  const plainText = tempDiv.innerText || tempDiv.textContent || state.article;
+
+  try {
+    const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({
+        model: 'openrouter/auto', messages: [{ role: 'user', content: `You are an expert at writing article titles for a tech tools website. All titles must be in English only.
+
+Read this article and suggest 5 catchy English titles, completely different from any previous titles.
+
+المقال:
+${plainText.substring(0, 1500)}
+
+القواعد:
+- 5 عناوين مرقمة من 1 إلى 5
+- كل عنوان في سطر
+- لا شرح` }] })
+
+    });
+    const data = await response.json();
+    document.getElementById('titlesLoading').style.display = 'none';
+    document.getElementById('regenBtn').style.display = 'flex';
+
+    if (data.choices && data.choices[0]) {
+      const text = data.choices[0].message.content;
+      const lines = text.split('\n').filter(l => l.trim() && /^\d/.test(l.trim()));
+      const titles = lines.map(l => l.replace(/^\d+[-.):\s]*/, '').trim()).filter(Boolean);
+      const options = document.getElementById('titleOptions');
+      options.innerHTML = '';
+      titles.forEach(title => {
+        const el = document.createElement('div');
+        el.className = 'title-option';
+        el.textContent = title;
+        el.onclick = () => {
+          document.querySelectorAll('.title-option').forEach(o => o.classList.remove('selected'));
+          el.classList.add('selected');
+          document.getElementById('customTitle').value = title;
+          state.selectedTitle = title;
+        };
+        options.appendChild(el);
+      });
+    }
+  } catch(e) {
+    document.getElementById('titlesLoading').style.display = 'none';
+    document.getElementById('regenBtn').style.display = 'flex';
+  }
+}
+
+// ===== PREVIEW MODAL =====
+function closePreviewModal() {
+  document.getElementById('previewModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ===== HISTORY =====
+function saveToHistory(title, url, asDraft, scheduledDate) {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  history.unshift({
+    title,
+    url: url || null,
+    date: new Date().toLocaleDateString('ar-SA'),
+    timestamp: Date.now(),
+    isDraft: !!asDraft,
+    isScheduled: !!scheduledDate,
+    scheduledDate: scheduledDate || null,
+    image: state.selectedImage || null,
+    tags: [...(state.tags || [])],
+    article: state.article || ''
+  });
+  if (history.length > 30) history.pop();
+  localStorage.setItem('publishHistory', JSON.stringify(history));
+}
+
+let _currentHistoryTab = 'published';
+
+function switchHistoryTab(tab) {
+  _currentHistoryTab = tab;
+  ['published','scheduled','drafts'].forEach(t => {
+    const btn = document.getElementById('htab-' + t);
+    btn.className = t === tab ? 'btn btn-primary' : 'btn btn-secondary';
+    btn.style.cssText = 'flex:1;font-size:12px;padding:8px;';
+  });
+  renderHistoryList();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+
+  // Stats
+  const total = history.filter(h => !h.isDraft && !h.isScheduled).length;
+  const now = Date.now();
+  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const week = history.filter(h => !h.isDraft && !h.isScheduled && h.timestamp > weekAgo).length;
+  const drafts = history.filter(h => h.isDraft).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statWeek').textContent = week;
+  document.getElementById('statDrafts').textContent = drafts;
+
+  switchHistoryTab(_currentHistoryTab);
+}
+
+function renderHistoryList() {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  const list = document.getElementById('historyList');
+  const tab = _currentHistoryTab;
+
+  let filtered;
+  if (tab === 'published') filtered = history.filter(h => !h.isDraft && !h.isScheduled);
+  else if (tab === 'scheduled') filtered = history.filter(h => h.isScheduled);
+  else filtered = history.filter(h => h.isDraft);
+
+  if (!filtered.length) {
+    list.innerHTML = `<p style="color:var(--text2);text-align:center;padding:40px 0;font-family:Tajawal,sans-serif;">لا يوجد مقالات هنا بعد</p>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((h, i) => {
+    const globalIdx = history.indexOf(h);
+    const tagsBadges = (h.tags || []).slice(0,3).map(t =>
+      `<span style="font-size:10px;padding:2px 8px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);border-radius:50px;color:var(--accent);">${t}</span>`
+    ).join('');
+
+    const scheduledInfo = h.isScheduled && h.scheduledDate
+      ? `<div style="font-size:11px;color:var(--accent2);font-family:Tajawal,sans-serif;margin-top:3px;">📅 ${new Date(h.scheduledDate).toLocaleString('ar-SA')}</div>` : '';
+
+    return `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        ${h.image ? `<img src="${h.image}" style="width:60px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;">` : ''}
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.4;">${h.title}</p>
+          <p style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;">${h.date}</p>
+          ${scheduledInfo}
+          ${tagsBadges ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${tagsBadges}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        ${h.url ? `
+          <button onclick="copyArticleLink(${globalIdx})" class="btn btn-secondary" style="font-size:11px;padding:5px 10px;flex:1;">🔗 نسخ الرابط</button>
+          <button onclick="copyLinkPlusImage(${globalIdx})" class="btn btn-secondary" style="font-size:11px;padding:5px 10px;flex:1;">🖼️ رابط + صورة</button>
+          <a href="${h.url}" target="_blank" class="btn btn-secondary" style="font-size:11px;padding:5px 10px;flex:1;text-decoration:none;justify-content:center;">↗ عرض</a>
+        ` : ''}
+        <button onclick="republishArticle(${globalIdx})" class="btn btn-secondary" style="font-size:11px;padding:5px 10px;flex:1;color:var(--accent);">🔁 إعادة نشر</button>
+        <button onclick="openSocialFromHistory(${globalIdx})" class="btn btn-secondary" style="font-size:11px;padding:5px 10px;flex:1;color:var(--accent2);">✨ ولّد سوشيال</button>
+      </div>
+    </div>`; 
+  }).join('');
+}
+
+function copyArticleLink(idx) {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  const h = history[idx];
+  if (!h || !h.url) return;
+  navigator.clipboard.writeText(h.url).then(() => showToast('✅ تم نسخ الرابط'));
+}
+
+function copyLinkPlusImage(idx) {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  const h = history[idx];
+  if (!h) return;
+  const text = [h.url, h.image].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط + رابط الصورة'));
+}
+
+function openSocialFromHistory(idx) {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  const h = history[idx];
+  if (!h) return;
+
+  state.selectedTitle = h.title;
+  state.selectedImage = h.image || null;
+  state.tags = [...(h.tags || [])];
+
+  // Switch to mainPage first
+  showPage('mainPage');
+
+  // Hide all steps
+  ['step1','step2','step3','step4','imageStep'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  const publishButtons = document.getElementById('publishButtons');
+  if (publishButtons) publishButtons.style.display = 'none';
+
+  const ppUrl = document.getElementById('ppUrl');
+  const ppLinkWrap = document.getElementById('ppLinkWrap');
+  document.getElementById('ppTitle').textContent = h.title || '';
+  if (h.url) { ppUrl.textContent = h.url; ppLinkWrap.style.display = 'block'; }
+  else { ppLinkWrap.style.display = 'none'; }
+
+  const copyLinkImgBtn = document.getElementById('copyLinkImgBtn');
+  const downloadImgBtn = document.getElementById('downloadImgBtn');
+  if (copyLinkImgBtn) copyLinkImgBtn.style.display = h.image ? 'block' : 'none';
+  if (downloadImgBtn) downloadImgBtn.style.display = h.image ? 'block' : 'none';
+
+  document.getElementById('twitterSection').style.display = 'none';
+  document.getElementById('pinterestSection').style.display = 'none';
+  const generateBtn = document.getElementById('generateSocialBtn');
+  if (generateBtn) { generateBtn.textContent = '✨ ولّد محتوى السوشيال بـ AI'; generateBtn.disabled = false; }
+
+  const card = document.getElementById('postPublishCard');
+  card.style.display = 'block';
+  setTimeout(function() { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+}
+
+function republishArticle(idx) {
+  const history = JSON.parse(localStorage.getItem('publishHistory') || '[]');
+  const h = history[idx];
+  if (!h) return;
+  state.selectedTitle = h.title;
+  state.selectedImage = h.image || null;
+  state.tags = [...(h.tags || [])];
+  state.article = h.article || '';
+  document.getElementById('customTitle').value = h.title;
+  if (h.article) {
+    document.getElementById('articleContent').value = h.article;
+    updateArticleStats(h.article);
+  }
+  const preview = document.getElementById('uploadPreview');
+  if (h.image) {
+    preview.src = h.image;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+  renderTags();
+  showPage('mainPage');
+  ['contentStep','titlesStep','imageStep','publishStep'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === 'publishStep' ? 'block' : 'none';
+  });
+  setStep(4);
+  document.getElementById('previewTitle').textContent = h.title;
+  const previewImgContainer = document.getElementById('previewImageContainer');
+  const previewImg = document.getElementById('previewImage');
+  if (h.image && previewImgContainer && previewImg) {
+    previewImgContainer.style.display = 'block';
+    previewImg.src = h.image;
+  } else if (previewImgContainer) {
+    previewImgContainer.style.display = 'none';
+  }
+  showSmartTimeSuggestion();
+  showToast('🔁 جاهز لإعادة النشر — عدّل ما تشاء ثم انشر');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:10px 20px;font-size:13px;font-family:Cairo,sans-serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+function copyLinkAndImage() {
+  const url = document.getElementById('ppUrl') ? document.getElementById('ppUrl').textContent : '';
+  const img = state.selectedImage || '';
+  const text = [url, img].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('✅ تم النسخ!'));
+}
+
+function clearHistory() {
+  if (confirm('هل تريد مسح سجل المقالات؟')) {
+    localStorage.removeItem('publishHistory');
+    renderHistory();
+  }
+}
+
+
+// ===== CODE EDITOR =====
+function handleHtmlFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const ta = document.getElementById('articleContent');
+    // أضف محتوى الملف في نهاية الكود الموجود
+    const existing = ta.value.trim();
+    ta.value = existing ? existing + '\n\n' + e.target.result : e.target.result;
+    onArticleInput();
+    // reset input عشان تقدر ترفع نفس الملف مرة ثانية
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function autosaveDraft() {
+  // الحفظ التلقائي معطل — شاشة نضيفة عند كل تحديث
+}
+
+function restoreDraft() {
+  // شاشة نضيفة دايماً عند كل login
+  localStorage.removeItem('draft_article');
+  localStorage.removeItem('draft_tags');
+  localStorage.removeItem('draft_title');
+  localStorage.removeItem('draftArticleAuto');
+}
+
+function cleanKimiOutput(raw) {
+  let cleaned = raw;
+
+  // Remove Python variable assignment at start: html_output = ''' or html_output = """
+  cleaned = cleaned.replace(/^[\s\S]*?html_output\s*=\s*(?:'{3}|"{3})\n?/, '');
+
+  // Remove closing Python code at end: '''\n# Save to file ... print(...)
+  // Matches ''' or """ followed by any Python code
+  cleaned = cleaned.replace(/(?:'{3}|"{3})[\s\S]*$/, '');
+
+  // Remove any leading/trailing lines that look like Python (e.g. "# comment", "with open(", "print(")
+  cleaned = cleaned.split('\n').filter(line => {
+    const t = line.trim();
+    // Remove lines that are clearly Python wrapper code
+    if (/^(html_output|with open|f\.write|print\(|#.*saved|file size)/i.test(t)) return false;
+    return true;
+  }).join('\n');
+
+  return cleaned.trim();
+}
+
+function onArticleInput() {
+  const ta = document.getElementById('articleContent');
+  const raw = ta.value;
+
+  // Auto-detect and clean Kimi Python wrapper
+  if (/html_output\s*=\s*(?:'{3}|"{3})/.test(raw)) {
+    const cleaned = cleanKimiOutput(raw);
+    ta.value = cleaned;
+    // Show brief notification
+    showKimiCleanAlert();
+  }
+
+  const val = ta.value.trim();
+  document.getElementById('editCodeBtn').style.display = val ? 'inline-flex' : 'none';
+  autosaveDraft();
+  updateArticleStats(val);
+}
+
+function showKimiCleanAlert() {
+  // Create or reuse alert
+  let alert = document.getElementById('kimiCleanAlert');
+  if (!alert) {
+    alert = document.createElement('div');
+    alert.id = 'kimiCleanAlert';
+    alert.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(67,233,123,0.15);border:1px solid rgba(67,233,123,0.4);color:#43e97b;padding:10px 20px;border-radius:50px;font-size:13px;font-family:Tajawal,sans-serif;z-index:9999;transition:opacity 0.5s;white-space:nowrap;';
+    document.body.appendChild(alert);
+  }
+  alert.textContent = '✅ تم تنظيف كود Kimi تلقائياً';
+  alert.style.opacity = '1';
+  alert.style.display = 'block';
+  clearTimeout(alert._timer);
+  alert._timer = setTimeout(() => {
+    alert.style.opacity = '0';
+    setTimeout(() => { alert.style.display = 'none'; }, 500);
+  }, 2500);
+}
+
+function toggleCodeEditor() {
+  const wrap = document.getElementById('codeEditorWrap');
+  const isOpen = wrap.style.display !== 'none';
+  if (!isOpen) {
+    document.getElementById('codeEditor').value = document.getElementById('articleContent').value;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function applyCodeEdit() {
+  const edited = document.getElementById('codeEditor').value;
+  document.getElementById('articleContent').value = edited;
+  document.getElementById('codeEditorWrap').style.display = 'none';
+}
+
+
+// ===== POST PUBLISH CARD =====
+function showPostPublishCard(url) {
+  const card = document.getElementById('postPublishCard');
+  if (!card) return;
+
+  // Title
+  document.getElementById('ppTitle').textContent = state.selectedTitle || '';
+
+  // First line from article
+  const tmp = document.createElement('div');
+  tmp.innerHTML = state.article || '';
+  const allText = tmp.innerText || tmp.textContent || '';
+  const firstLine = allText.replace(/\s+/g, ' ').trim().slice(0, 200);
+  document.getElementById('ppFirstLine').textContent = firstLine ? firstLine + '...' : '';
+
+  // URL
+  const linkWrap = document.getElementById('ppLinkWrap');
+  if (url) {
+    document.getElementById('ppUrl').textContent = url;
+    linkWrap.style.display = 'block';
+  } else {
+    linkWrap.style.display = 'none';
+  }
+
+  // Download button — show only if image exists
+  const dlBtn = document.getElementById('downloadImgBtn');
+  const copyLinkImg = document.getElementById('copyLinkImgBtn');
+  if (state.uploadedImageFile || state.selectedImage) {
+    dlBtn.style.display = 'flex';
+  } else {
+    dlBtn.style.display = 'none';
+  }
+  if (url && state.selectedImage) {
+    copyLinkImg.style.display = 'flex';
+  } else {
+    if (copyLinkImg) copyLinkImg.style.display = 'none';
+  }
+
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyPostInfo(btn) {
+  const title = document.getElementById('ppTitle').textContent;
+  const firstLine = document.getElementById('ppFirstLine').textContent;
+  const urlEl = document.getElementById('ppUrl');
+  const url = urlEl ? urlEl.textContent : '';
+  const text = [title, firstLine, url].filter(Boolean).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+async function downloadCompressedImage() {
+  const btn = document.getElementById('downloadImgBtn');
+  btn.textContent = '⏳ جاري التحضير...';
+  btn.disabled = true;
+
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    await new Promise(async (resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      if (state.uploadedImageFile) {
+        img.src = URL.createObjectURL(state.uploadedImageFile);
+      } else {
+        // Try fetch first to avoid CORS issues with Cloudinary
+        try {
+          const resp = await fetch(state.selectedImage);
+          const blob = await resp.blob();
+          img.src = URL.createObjectURL(blob);
+        } catch(_) {
+          img.crossOrigin = 'anonymous';
+          img.src = state.selectedImage;
+        }
+      }
+    });
+
+    // Twitter optimal: 1200x675
+    const maxW = 1200, maxH = 675;
+    let w = img.naturalWidth, h = img.naturalHeight;
+    if (w > maxW || h > maxH) {
+      const ratio = Math.min(maxW / w, maxH / h);
+      w = Math.round(w * ratio);
+      h = Math.round(h * ratio);
+    }
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const safeName = (state.selectedTitle || 'image').replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40);
+      a.download = safeName + '-twitter.jpg';
+      a.click();
+      btn.textContent = '✅ تم التنزيل';
+      setTimeout(() => { btn.textContent = '⬇️ تنزيل الصورة مضغوطة للتويتر'; btn.disabled = false; }, 2000);
+    }, 'image/jpeg', 0.80);
+
+  } catch(e) {
+    btn.textContent = '❌ تعذر التنزيل';
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = '⬇️ تنزيل الصورة مضغوطة للتويتر'; }, 2000);
+  }
+}
+
+// ===== SOCIAL CONTENT GENERATOR =====
+async function generateSocialContent(btn) {
+  if (!state.geminiKey) state.geminiKey = localStorage.getItem('geminiKey') || '';
+  if (!state.geminiKey) { alert('⚠️ أدخل مفتاح OpenRouter في الإعدادات أولاً'); return; }
+
+  const title = state.selectedTitle || document.getElementById('ppTitle').textContent || '';
+  const url = document.getElementById('ppUrl') ? document.getElementById('ppUrl').textContent.trim() : '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = state.article || '';
+  const excerpt = (tmp.innerText || tmp.textContent || '').replace(/\s+/g,' ').trim().slice(0, 400);
+
+  btn.disabled = true;
+  btn.textContent = '⏳ جارٍ التوليد...';
+
+  // Show sections with loading state
+  document.getElementById('twitterSection').style.display = 'block';
+  document.getElementById('pinterestSection').style.display = 'block';
+  document.getElementById('tweetText').value = '';
+  document.getElementById('pinTitle').value = '';
+  document.getElementById('pinDesc').value = '';
+  updateTweetCount();
+
+  try {
+    const prompt = `You are a social media expert for GoToolRadar, an AI tools review website.
+
+Article title: "${title}"
+Article excerpt: "${excerpt}"
+Article URL: "${url}"
+
+Generate the following in JSON format only, no markdown:
+{
+  "tweet": "A punchy tweet under 240 chars (leave room for URL). Start with an emoji. Add 2-3 relevant hashtags at end like #AITools #ProductivityTools etc. Do NOT include the URL in the tweet text.",
+  "pinterest_title": "Pinterest pin title, 50-60 chars max, keyword-rich, engaging",
+  "pinterest_desc": "Pinterest pin description, 150-200 chars, keyword-rich, describe what the tool does and who it's for, end with the URL if available"
+}`;
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    let raw = data.choices?.[0]?.message?.content?.trim() || '{}';
+    raw = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(raw);
+
+    // Fill Twitter
+    const tweetWithUrl = url ? (result.tweet || '') + '\n\n' + url : (result.tweet || '');
+    document.getElementById('tweetText').value = tweetWithUrl;
+    updateTweetCount();
+
+    // Fill Pinterest
+    document.getElementById('pinTitle').value = result.pinterest_title || '';
+    document.getElementById('pinDesc').value = result.pinterest_desc || '';
+    updatePinFields();
+
+    btn.textContent = '🔁 أعد التوليد';
+
+  } catch(e) {
+    alert('❌ تعذر التوليد: ' + e.message);
+    btn.textContent = '✨ ولّد محتوى السوشيال بـ AI';
+  }
+  btn.disabled = false;
+}
+
+function copyPinUrl(btn) {
+  const url = document.getElementById('ppUrl')?.textContent?.trim() || '';
+  if (!url || url === '—') { showToast('⚠️ لا يوجد رابط بعد'); return; }
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent; btn.textContent = '✅ تم!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function copyPinImage(btn) {
+  const url = state.selectedImage || '';
+  if (!url) { showToast('⚠️ لا توجد صورة'); return; }
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent; btn.textContent = '✅ تم!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function updatePinFields() {
+  const url = document.getElementById('ppUrl')?.textContent?.trim() || '';
+  const urlDisplay = document.getElementById('pinUrlDisplay');
+  if (urlDisplay) urlDisplay.textContent = url || '—';
+
+  const imgPreview = document.getElementById('pinImagePreview');
+  const copyImgBtn = document.getElementById('pinCopyImgBtn');
+  if (imgPreview) {
+    if (state.selectedImage) {
+      imgPreview.innerHTML = `<img src="${state.selectedImage}" style="width:100%;max-height:100px;object-fit:cover;border-radius:8px;margin-top:4px;">`;
+      if (copyImgBtn) copyImgBtn.style.display = 'inline-flex';
+    } else {
+      imgPreview.textContent = 'لا توجد صورة';
+      if (copyImgBtn) copyImgBtn.style.display = 'none';
+    }
+  }
+}
+
+function publishToPinterest() {
+  const desc = document.getElementById('pinDesc')?.value?.trim();
+  const url = document.getElementById('ppUrl')?.textContent?.trim();
+  const image = state.selectedImage || '';
+
+  if (!desc && !url) { showToast('⚠️ ولّد المحتوى أولاً'); return; }
+
+  const params = new URLSearchParams();
+  if (url) params.set('url', url);
+  if (desc) params.set('description', desc);
+  if (image) params.set('media', image);
+
+  window.open('https://pinterest.com/pin/create/button/?' + params.toString(), '_blank', 'width=750,height=550,noopener,noreferrer');
+
+  const btn = document.getElementById('pinPublishBtn');
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ فُتح بنترست!';
+    btn.disabled = true;
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+  }
+}
+
+function publishToTwitter() {
+  const text = document.getElementById('tweetText')?.value?.trim();
+  if (!text) { showToast('⚠️ لا يوجد نص للتغريدة — ولّد المحتوى أولاً'); return; }
+  const encoded = encodeURIComponent(text);
+  const url = `https://twitter.com/intent/tweet?text=${encoded}`;
+  window.open(url, '_blank', 'width=600,height=500,noopener,noreferrer');
+  // Visual feedback
+  const btn = document.getElementById('tweetPublishBtn');
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ فُتح تويتر!';
+    btn.disabled = true;
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+  }
+}
+
+function updateTweetCount() {
+  const ta = document.getElementById('tweetText');
+  const counter = document.getElementById('tweetCharCount');
+  if (!ta || !counter) return;
+  const len = ta.value.length;
+  const remaining = 280 - len;
+  counter.textContent = `${len}/280`;
+  counter.style.color = remaining < 20 ? 'var(--accent2)' : remaining < 50 ? '#f7971e' : 'var(--text2)';
+}
+
+function copySocialText(elId, btn) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const text = el.value || el.textContent || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function startSessionTimer() {
+  const SESSION_DURATION = 60 * 60 * 1000; // 1 hour in ms
+  const WARN_AT = 5 * 60 * 1000; // warn at 5 min left
+  let warned = false;
+
+  function tick() {
+    const start = parseInt(localStorage.getItem('sessionStart') || Date.now());
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, SESSION_DURATION - elapsed);
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+
+    const badge = document.getElementById('sessionTimerBadge');
+    const text = document.getElementById('sessionTimerText');
+    if (!badge || !text) return;
+
+    text.textContent = timeStr;
+
+    if (remaining <= WARN_AT && remaining > 0) {
+      badge.style.background = 'rgba(255,101,132,0.15)';
+      badge.style.borderColor = 'rgba(255,101,132,0.4)';
+      badge.style.color = 'var(--accent2)';
+      if (!warned) {
+        warned = true;
+        showSessionWarning(mins);
+      }
+    } else if (remaining > WARN_AT) {
+      badge.style.background = 'rgba(67,233,123,0.1)';
+      badge.style.borderColor = 'rgba(67,233,123,0.3)';
+      badge.style.color = 'var(--accent3)';
+    }
+
+    if (remaining === 0) {
+      badge.style.background = 'rgba(255,101,132,0.2)';
+      text.textContent = 'انتهت!';
+      showSessionExpired();
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+}
+
+function showSessionWarning(mins) {
+  const existing = document.getElementById('sessionWarnToast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'sessionWarnToast';
+  toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--surface);border:1px solid var(--accent2);border-radius:14px;padding:16px 20px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:Cairo,sans-serif;text-align:center;';
+  toast.innerHTML = `
+    <div style="font-size:22px;margin-bottom:8px;">⚠️</div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:6px;">الجلسة تنتهي خلال ${mins} دقائق!</div>
+    <div style="font-size:12px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:14px;">جدد الجلسة حتى لا تفقد عملك</div>
+    <div style="display:flex;gap:8px;justify-content:center;">
+      <button onclick="signInWithGoogle()" style="background:linear-gradient(135deg,var(--accent),#8b82ff);color:white;border:none;border-radius:8px;padding:8px 18px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🔄 جدد الآن</button>
+      <button onclick="this.closest('#sessionWarnToast').remove()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:8px 14px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;">لاحقاً</button>
+    </div>`;
+  document.body.appendChild(toast);
+}
+
+function showSessionExpired() {
+  const existing = document.getElementById('sessionExpiredOverlay');
+  if (existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'sessionExpiredOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;max-width:360px;width:90%;text-align:center;font-family:Cairo,sans-serif;">
+      <div style="font-size:36px;margin-bottom:12px;">⏰</div>
+      <div style="font-size:18px;font-weight:900;margin-bottom:8px;">انتهت الجلسة</div>
+      <div style="font-size:13px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:20px;line-height:1.7;">مضت ساعة على تسجيل الدخول — جدد الجلسة للاستمرار في النشر.</div>
+      <button onclick="signInWithGoogle()" style="width:100%;background:linear-gradient(135deg,var(--accent),#8b82ff);color:white;border:none;border-radius:10px;padding:14px;font-family:Cairo,sans-serif;font-size:15px;font-weight:700;cursor:pointer;">🔄 تجديد الجلسة</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+
+
+// ===== ARTICLE STATS =====
+function updateArticleStats(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const text = (tmp.innerText || tmp.textContent || '').trim();
+  if (!text) { document.getElementById('articleStats').style.display = 'none'; return; }
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const chars = text.length;
+  const readTime = Math.max(1, Math.round(words / 200));
+  document.getElementById('statWords').textContent = words.toLocaleString('ar');
+  document.getElementById('statChars').textContent = chars.toLocaleString('ar');
+  document.getElementById('statReadTime').textContent = readTime;
+  document.getElementById('articleStats').style.display = 'flex';
+}
+
+// autosave معطل — شاشة نضيفة عند كل تحديث
+
+// ===== SMART PUBLISH TIME =====
+function getSmartPublishTime() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const hour = now.getHours();
+  // Best times: Tue/Wed/Thu 8-10am or 7-9pm
+  const bestDays = [2,3,4]; // Tue Wed Thu
+  let target = new Date(now);
+  // Find next best slot
+  for (let d = 0; d < 8; d++) {
+    const candidate = new Date(now);
+    candidate.setDate(now.getDate() + d);
+    const cd = candidate.getDay();
+    if (bestDays.includes(cd)) {
+      // Try morning slot
+      const morning = new Date(candidate);
+      morning.setHours(9, 0, 0, 0);
+      if (morning > now) { target = morning; break; }
+      // Try evening slot
+      const evening = new Date(candidate);
+      evening.setHours(20, 0, 0, 0);
+      if (evening > now) { target = evening; break; }
+    }
+  }
+  return target;
+}
+
+function showSmartTimeSuggestion() {
+  const t = getSmartPublishTime();
+  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const dayName = days[t.getDay()];
+  const timeStr = t.toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('smartTimeText').textContent = `أفضل وقت للنشر: ${dayName} الساعة ${timeStr}`;
+  document.getElementById('smartTimeSuggestion').style.display = 'block';
+  state._smartTime = t;
+}
+
+function applySmartTime() {
+  if (!state._smartTime) return;
+  const t = new Date(state._smartTime.getTime()); // clone — don't mutate original
+  t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
+  document.getElementById('publishDateTime').value = t.toISOString().slice(0, 16);
+  setSchedule('schedule');
+}
+
+// ===== UPLOAD PROGRESS BAR =====
+function showUploadProgress(containerId, label) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:6px;">${label}</div>
+    <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+      <div id="${containerId}-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width 0.3s;"></div>
+    </div>`;
+  // Animate fake progress
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 15, 88);
+    const bar = document.getElementById(containerId + '-bar');
+    if (bar) bar.style.width = pct + '%';
+    else clearInterval(iv);
+  }, 300);
+  return {
+    update: (msg) => {
+      const labelEl = el.querySelector('div');
+      if (labelEl) labelEl.textContent = msg;
+    },
+    finish: (msg) => {
+      clearInterval(iv);
+      const bar = document.getElementById(containerId + '-bar');
+      if (bar) bar.style.width = '100%';
+      setTimeout(() => { if (el) el.innerHTML = msg; }, 400);
+    }
+  };
+}
+
+// ===== DRAG & DROP REORDER for secondary images =====
+function makeDraggable() {
+  const preview = document.getElementById('secondaryImagesPreview');
+  if (!preview) return;
+  let dragIdx = null;
+  preview.querySelectorAll('.sec-thumb-wrap').forEach((el, i) => {
+    el.draggable = true;
+    el.style.cursor = 'grab';
+    el.addEventListener('dragstart', () => { dragIdx = i; el.style.opacity = '0.5'; });
+    el.addEventListener('dragend', () => { el.style.opacity = '1'; });
+    el.addEventListener('dragover', e => { e.preventDefault(); });
+    el.addEventListener('drop', () => {
+      if (dragIdx === null || dragIdx === i) return;
+      // Reorder state
+      const moved = state.secondaryImages.splice(dragIdx, 1)[0];
+      state.secondaryImages.splice(i, 0, moved);
+      dragIdx = null;
+      rebuildSecondaryPreview();
+    });
+  });
+}
+
+function rebuildSecondaryPreview() {
+  const preview = document.getElementById('secondaryImagesPreview');
+  if (!preview) return;
+  preview.innerHTML = state.secondaryImages.map((img, i) => `
+    <div class="sec-thumb-wrap" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+      <span style="font-size:16px;color:var(--text2);cursor:grab;">⠿</span>
+      <img src="${img.url}" style="width:60px;height:40px;object-fit:cover;border-radius:6px;">
+      <span style="font-size:11px;color:var(--accent3);font-family:Tajawal,sans-serif;flex:1;">✅ صورة ${i+1}</span>
+      <button onclick="removeSecondaryImage(${i})" style="background:none;border:none;color:var(--accent2);cursor:pointer;font-size:16px;">×</button>
+    </div>`).join('');
+  makeDraggable();
+}
+
+function removeSecondaryImage(i) {
+  state.secondaryImages.splice(i, 1);
+  rebuildSecondaryPreview();
+  const info = document.getElementById('secondaryInfo');
+  if (info) info.innerHTML = `📸 ${state.secondaryImages.length} صورة — اسحب لإعادة الترتيب`;
+}
+
+// ===== FULL PREVIEW WITH MEDIA =====
+function openPreviewModal() {
+  const modal = document.getElementById('previewModal');
+  const modalContent = document.getElementById('previewModalContent');
+
+  const tmp2 = document.createElement('div');
+  tmp2.innerHTML = state.article || '';
+  const plainText = (tmp2.innerText || tmp2.textContent || '').trim();
+  const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
+  const readTime = Math.max(1, Math.round(wordCount / 200));
+  const charCount = plainText.length;
+
+  let html = '';
+
+  // Stats bar
+  html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--surface2);border-radius:10px;font-size:12px;font-family:Tajawal,sans-serif;color:var(--text2);">
+    <span>📝 <strong style="color:var(--text)">${wordCount.toLocaleString('ar')}</strong> كلمة</span>
+    <span>⏱️ <strong style="color:var(--text)">${readTime}</strong> دقيقة قراءة</span>
+    <span>🔤 <strong style="color:var(--text)">${charCount.toLocaleString('ar')}</strong> حرف</span>
+    ${state.tags.length ? `<span>🏷️ <strong style="color:var(--accent)">${state.tags.join('، ')}</strong></span>` : ''}
+  </div>`;
+
+  if (state.selectedTitle) html += `<h1 style="font-size:20px;font-weight:900;margin-bottom:14px;line-height:1.4;font-family:Cairo,sans-serif;color:#fff;border-bottom:1px solid var(--border);padding-bottom:12px;">${state.selectedTitle}</h1>`;
+  if (state.selectedImage) html += `<img src="${state.selectedImage}" style="width:100%;border-radius:8px;margin-bottom:16px;display:block;">`;
+  if (state.article) html += `<div style="font-family:Tajawal,sans-serif;font-size:14px;line-height:1.9;color:#c8cdd8;">${state.article}</div>`;
+
+  if (state.secondaryImages && state.secondaryImages.length) {
+    html += state.secondaryImages.map(img => `<img src="${img.url}" style="width:100%;border-radius:8px;margin:12px 0;display:block;">`).join('');
+  }
+
+  const videoUrl = document.getElementById('videoUrl') ? document.getElementById('videoUrl').value.trim() : '';
+  if (videoUrl) {
+    const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) {
+      html += `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;margin:16px 0;"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe></div>`;
+    }
+  }
+
+  if (!state.selectedTitle && !state.article) {
+    html = `<p style="color:var(--text2);text-align:center;padding:40px 0;font-family:Tajawal,sans-serif;">لا يوجد محتوى للمعاينة بعد</p>`;
+  }
+
+  modalContent.innerHTML = html;
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+// ===== RESET =====
+function resetApp() {
+  // مسح الـ state
+  state.article = ''; state.selectedTitle = ''; state.selectedImage = null;
+  state.uploadedImageBase64 = null; state.uploadedImageFile = null;
+  state._imageUploadPromise = null;
+  state.tags = []; state.scheduleMode = 'now';
+  state.secondaryImages = []; state.videoData = null;
+
+  // مسح الحقول
+  document.getElementById('articleContent').value = '';
+  document.getElementById('customTitle').value = '';
+  document.getElementById('customImageUrl').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('tagsContainer').innerHTML = '<input class="tags-input" id="tagInput" placeholder="اكتب كلمة واضغط Enter..." onkeydown="handleTagInput(event)">';
+  document.getElementById('titleOptions').innerHTML = '';
+
+  const imagesGrid = document.getElementById('imagesGrid');
+  if (imagesGrid) imagesGrid.innerHTML = '';
+  document.getElementById('successAlert').style.display = 'none';
+  document.getElementById('errorAlert').style.display = 'none';
+
+  const ids = ['noUnsplash','imageInfo','secondaryInfo','videoPreviewWrap','videoInfo',
+                'editCodeBtn','codeEditorWrap','postPublishCard','imageWarning',
+                'twitterSection','pinterestSection'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+
+  const secPreview = document.getElementById('secondaryImagesPreview');
+  if (secPreview) secPreview.innerHTML = '';
+  const videoUrl = document.getElementById('videoUrl');
+  if (videoUrl) videoUrl.value = '';
+
+  // إعادة تفعيل كبسات النشر
+  const publishBtn = document.getElementById('publishBtn');
+  const draftBtn = document.getElementById('draftBtn');
+  if (publishBtn) { publishBtn.disabled = false; publishBtn.style.display = 'flex'; }
+  if (draftBtn) { draftBtn.disabled = false; draftBtn.style.display = 'none'; }
+  const publishButtons = document.getElementById('publishButtons');
+  if (publishButtons) publishButtons.style.display = 'block';
+
+  // إخفاء كل الخطوات وإظهار الأولى فقط
+  ['contentStep','titlesStep','imageStep','publishStep'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === 'contentStep' ? 'block' : 'none';
+  });
+
+  // مسح التصنيف
+  document.querySelectorAll('#categoryBtns .cat-btn').forEach(b => b.classList.remove('active'));
+  state.selectedCategory = null;
+
+  switchMediaTab('main');
+  setStep(1);
+  setSchedule('now');
+  showPage('mainPage');
+  localStorage.removeItem('draft_article');
+  localStorage.removeItem('draft_tags');
+  localStorage.removeItem('draftArticleAuto');
+  // reset social btn
+  const socialBtn = document.getElementById('generateSocialBtn');
+  if (socialBtn) { socialBtn.textContent = '✨ ولّد محتوى السوشيال بـ AI'; socialBtn.disabled = false; }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+<!-- SEO OPTIMIZER PAGE -->
+<div id="seoOptimizerPage" class="page">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:900;color:var(--accent3);">✨ SEO Title Optimizer</h2>
+      <button class="btn btn-secondary" style="font-size:12px;padding:7px 14px;" onclick="showPage('mainPage')">← رجوع</button>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:20px;font-family:Tajawal,sans-serif;">اختر مقال → انسخ الـ Prompt → أعطيك التلاتة → تعدل وتحفظ مباشرة</p>
+
+    <!-- اختيار المقال -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title"><div class="card-icon" style="background:rgba(67,233,123,0.15)">📄</div>اختر المقال</div>
+      <div id="seoPostsLoading" style="display:flex;align-items:center;gap:10px;color:var(--text2);font-size:13px;font-family:Tajawal,sans-serif;">
+        <div class="spinner"></div> جارٍ تحميل المقالات...
+      </div>
+      <select id="seoPostSelect" style="display:none;" onchange="onSeoPostSelected()">
+        <option value="">— اختر مقال —</option>
+      </select>
+
+      <!-- العنوان الكامل + تاريخ -->
+      <div id="seoCurrentTitle" style="display:none;margin-top:10px;">
+        <div style="padding:10px 14px;background:var(--surface2);border-radius:8px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:6px;">العنوان الحالي الكامل</div>
+          <div id="seoCurrentTitleText" style="color:var(--text);font-size:13px;font-family:Tajawal,sans-serif;line-height:1.6;word-break:break-word;"></div>
+        </div>
+        <div id="seoLastModified" style="display:none;padding:7px 12px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:8px;font-size:11px;color:var(--text2);font-family:monospace;">
+          🕒 <span id="seoLastModifiedText"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prompt Box -->
+    <div id="seoPromptCard" style="display:none;margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(255,101,132,0.15)">📋</div>الـ Prompt — انسخه وأعطيني إياه</div>
+        <textarea id="seoPromptText" style="min-height:160px;font-size:12px;direction:ltr;text-align:left;resize:vertical;margin-bottom:10px;color:var(--text2);background:var(--surface2);" readonly></textarea>
+        <button class="btn btn-primary" onclick="copySeoPrompt(this)">📋 نسخ الـ Prompt</button>
+      </div>
+    </div>
+
+    <!-- حقول الإدخال -->
+    <div id="seoFieldsCard" style="display:none;">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title"><div class="card-icon" style="background:rgba(108,99,255,0.15)">🔵</div>عنوان بلوجر (SEO Title)</div>
+        <p style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:10px;">55-60 حرف • الكيورد الرئيسي أول • محسّن للبحث</p>
+        <input type="text" id="seoBloggerTitle" placeholder="مثال: Runway Gen-4 Review 2026: Is It Still the Best AI Video Tool?" style="margin-bottom:6px;" oninput="updateSeoCount('seoBloggerTitle','seoBloggerCount',55,60)">
+        <div id="seoBloggerCount" style="font-size:11px;color:var(--text2);font-family:monospace;margin-bottom:0;text-align:left;">0 حرف</div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title"><div class="card-icon" style="background:rgba(255,101,132,0.15)">🔴</div>عنوان H1 (داخل المقال)</div>
+        <p style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:10px;">جذاب • عاطفي • سؤال أو تحدي</p>
+        <input type="text" id="seoH1Title" placeholder="مثال: Can Runway Gen-4 Really Replace a Video Editor?" style="margin-bottom:0;">
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title"><div class="card-icon" style="background:rgba(247,151,30,0.15)">🟡</div>Meta Description</div>
+        <p style="font-size:11px;color:var(--text2);font-family:Tajawal,sans-serif;margin-bottom:10px;">150-160 حرف • تحتوي الكيورد • تشجع النقر</p>
+        <textarea id="seoMetaDesc" placeholder="مثال: Runway Gen-4 is out — but does it actually replace traditional video editing? We tested it for 2 weeks. Here's the honest verdict." style="min-height:90px;font-size:13px;direction:ltr;text-align:left;resize:vertical;margin-bottom:6px;" oninput="updateSeoCount('seoMetaDesc','seoMetaCount',150,160)"></textarea>
+        <div id="seoMetaCount" style="font-size:11px;color:var(--text2);font-family:monospace;margin-bottom:0;text-align:left;">0 حرف</div>
+      </div>
+
+      <div id="seoSaveAlert" class="alert" style="display:none;"></div>
+      <div id="seoSaveLoading" style="display:none;align-items:center;gap:10px;color:var(--text2);font-size:13px;font-family:Tajawal,sans-serif;margin-bottom:14px;">
+        <div class="spinner"></div> جارٍ الحفظ على بلوجر...
+      </div>
+
+      <button class="btn btn-publish" onclick="saveSeoToBlogger()" id="seoSaveBtn">💾 حفظ على بلوجر</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== SEO OPTIMIZER =====
+let seoState = {
+  posts: [],
+  selectedPost: null
+};
+
+function updateSeoCount(inputId, countId, min, max) {
+  const len = document.getElementById(inputId).value.length;
+  const el = document.getElementById(countId);
+  el.textContent = len + ' حرف';
+  el.style.color = len >= min && len <= max ? 'var(--accent3)' : len > max ? 'var(--accent2)' : 'var(--text2)';
+}
+
+async function loadPostsForSeo() {
+  const loading = document.getElementById('seoPostsLoading');
+  const select = document.getElementById('seoPostSelect');
+  const fieldsCard = document.getElementById('seoFieldsCard');
+  const promptCard = document.getElementById('seoPromptCard');
+  const currentDiv = document.getElementById('seoCurrentTitle');
+
+  loading.style.display = 'flex';
+  select.style.display = 'none';
+  fieldsCard.style.display = 'none';
+  promptCard.style.display = 'none';
+  currentDiv.style.display = 'none';
+
+  try {
+    let allPosts = [];
+    let pageToken = null;
+    do {
+      const url = `https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts?maxResults=50&fields=nextPageToken,items(id,title,updated)${pageToken ? '&pageToken=' + pageToken : ''}`;
+      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${state.accessToken}` } });
+      if (!res.ok) throw new Error('فشل تحميل المقالات');
+      const data = await res.json();
+      if (data.items) allPosts = allPosts.concat(data.items);
+      pageToken = data.nextPageToken || null;
+    } while (pageToken);
+
+    seoState.posts = allPosts;
+    select.innerHTML = '<option value="">— اختر مقال —</option>';
+    allPosts.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.title;
+      select.appendChild(opt);
+    });
+    loading.style.display = 'none';
+    select.style.display = 'block';
+  } catch(e) {
+    loading.innerHTML = '<span style="color:var(--accent2)">❌ ' + e.message + '</span>';
+  }
+}
+
+function onSeoPostSelected() {
+  const postId = document.getElementById('seoPostSelect').value;
+  const currentDiv = document.getElementById('seoCurrentTitle');
+  const currentText = document.getElementById('seoCurrentTitleText');
+  const promptCard = document.getElementById('seoPromptCard');
+  const fieldsCard = document.getElementById('seoFieldsCard');
+  const lastMod = document.getElementById('seoLastModified');
+  const lastModText = document.getElementById('seoLastModifiedText');
+
+  if (!postId) {
+    currentDiv.style.display = 'none';
+    promptCard.style.display = 'none';
+    fieldsCard.style.display = 'none';
+    return;
+  }
+
+  const post = seoState.posts.find(p => p.id === postId);
+  if (!post) return;
+
+  seoState.selectedPost = post;
+
+  // العنوان الكامل
+  currentText.textContent = post.title;
+  currentDiv.style.display = 'block';
+
+  // تاريخ آخر تعديل
+  if (post.updated) {
+    const d = new Date(post.updated);
+    const opts = { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' };
+    lastModText.textContent = 'آخر تعديل: ' + d.toLocaleDateString('ar-SA', opts);
+    lastMod.style.display = 'block';
+  } else {
+    lastMod.style.display = 'none';
+  }
+
+  // بناء الـ Prompt وعرضه
+  const prompt = buildSeoPrompt(post.title);
+  document.getElementById('seoPromptText').value = prompt;
+  promptCard.style.display = 'block';
+  fieldsCard.style.display = 'block';
+
+  // مسح الحقول القديمة
+  document.getElementById('seoBloggerTitle').value = '';
+  document.getElementById('seoH1Title').value = '';
+  document.getElementById('seoMetaDesc').value = '';
+  document.getElementById('seoBloggerCount').textContent = '0 حرف';
+  document.getElementById('seoMetaCount').textContent = '0 حرف';
+  document.getElementById('seoSaveAlert').style.display = 'none';
+}
+
+function buildSeoPrompt(title) {
+  return `مقال ToolRadar:
+"${title}"
+
+اكتبلي:
+1. Blogger Title: عنوان SEO (55-60 حرف، الكيورد أول، سنة 2026 إذا مناسب، رقم أو مقارنة إذا ممكن)
+2. H1: عنوان جذاب (سؤال أو تحدي، يشجع النقر، مختلف عن الأول)
+3. Meta: وصف (150-160 حرف، يحتوي الكيورد، يشجع النقر)
+
+الشكل بالضبط:
+Blogger Title: ...
+H1: ...
+Meta: ...`;
+}
+
+function copySeoPrompt(btn) {
+  const text = document.getElementById('seoPromptText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(() => btn.textContent = '📋 نسخ الـ Prompt', 2000);
+  }).catch(() => {
+    document.getElementById('seoPromptText').select();
+  });
+}
+
+async function saveSeoToBlogger() {
+  const bloggerTitle = document.getElementById('seoBloggerTitle').value.trim();
+  const h1Title = document.getElementById('seoH1Title').value.trim();
+  const metaDesc = document.getElementById('seoMetaDesc').value.trim();
+
+  if (!bloggerTitle) { alert('أدخل عنوان بلوجر أولاً'); return; }
+  if (!seoState.selectedPost) { alert('اختر مقال أولاً'); return; }
+
+  const alertEl = document.getElementById('seoSaveAlert');
+  const loadingEl = document.getElementById('seoSaveLoading');
+  const saveBtn = document.getElementById('seoSaveBtn');
+
+  saveBtn.disabled = true;
+  loadingEl.style.display = 'flex';
+  alertEl.style.display = 'none';
+
+  try {
+    const getRes = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts/${seoState.selectedPost.id}`, {
+      headers: { 'Authorization': `Bearer ${state.accessToken}` }
+    });
+    if (!getRes.ok) throw new Error('فشل جلب المقال');
+    const post = await getRes.json();
+
+    let content = post.content || '';
+    if (h1Title) {
+      const h1Regex = /<h1[^>]*>.*?<\/h1>/is;
+      if (h1Regex.test(content)) {
+        content = content.replace(h1Regex, `<h1>${h1Title}</h1>`);
+      }
+    }
+
+    const patchRes = await fetch(`https://www.googleapis.com/blogger/v3/blogs/${state.blogId}/posts/${seoState.selectedPost.id}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${state.accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: bloggerTitle, content, url: post.url })
+    });
+
+    if (!patchRes.ok) throw new Error(await patchRes.text());
+
+    // حدّث locally
+    seoState.selectedPost.title = bloggerTitle;
+    const opt = document.querySelector(`#seoPostSelect option[value="${seoState.selectedPost.id}"]`);
+    if (opt) opt.textContent = bloggerTitle;
+    document.getElementById('seoCurrentTitleText').textContent = bloggerTitle;
+
+    // حدّث تاريخ التعديل
+    const nowStr = new Date().toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    document.getElementById('seoLastModifiedText').textContent = 'آخر تعديل: ' + nowStr;
+    document.getElementById('seoLastModified').style.display = 'block';
+
+    alertEl.className = 'alert alert-success';
+    alertEl.style.display = 'block';
+
+    const postEditUrl = `https://www.blogger.com/blog/post/edit/${state.blogId}/${seoState.selectedPost.id}`;
+
+    if (metaDesc) {
+      await navigator.clipboard.writeText(metaDesc).catch(()=>{});
+      alertEl.innerHTML = `✅ تم الحفظ! الـ Meta Description نُسخ للـ clipboard<br>
+        <button onclick="window.open('${postEditUrl}','_blank')" style="margin-top:10px;background:linear-gradient(135deg,var(--accent),#8b82ff);color:white;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;width:100%;display:block;">
+          📝 افتح المقال على بلوجر والصق الـ Meta Description
+        </button>`;
+    } else {
+      alertEl.innerHTML = `✅ تم الحفظ بنجاح!`;
+    }
+
+  } catch(e) {
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
+    let msg = e.message || '';
+    if (msg.includes('401')) msg = 'انتهت الجلسة — جدد تسجيل الدخول';
+    else if (msg.includes('403')) msg = 'ليس لديك صلاحية تعديل هذا المقال';
+    alertEl.textContent = '❌ ' + msg;
+  } finally {
+    saveBtn.disabled = false;
+    loadingEl.style.display = 'none';
+  }
+}
+</script>
+
+<!-- GEMINI KEY MODAL -->
+<div id="geminiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:90%;max-width:440px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:16px;font-weight:700;">🔑 مفتاح OpenRouter API</div>
+      <button onclick="closeGeminiModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="geminiStatus" style="margin-bottom:14px;font-size:13px;font-family:Tajawal,sans-serif;"></div>
+    <label>المفتاح الحالي</label>
+    <input type="password" id="geminiModalKey" placeholder="sk-or-..." style="margin-bottom:8px;">
+    <p style="font-size:11px;color:var(--text2);margin-bottom:16px;font-family:Tajawal,sans-serif;">
+      احصل على مفتاح مجاني من <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a>
+    </p>
+    <button class="btn btn-primary" onclick="saveGeminiKey()">✅ حفظ واختبار المفتاح</button>
+  </div>
+</div>
+
+<script>
+function openGeminiModal() {
+  const modal = document.getElementById('geminiModal');
+  modal.style.display = 'flex';
+  const key = state.geminiKey || localStorage.getItem('geminiKey') || '';
+  document.getElementById('geminiModalKey').value = key;
+  const status = document.getElementById('geminiStatus');
+  if (key) {
+    status.innerHTML = '<span style="color:var(--accent3)">✅ يوجد مفتاح محفوظ</span>';
+  } else {
+    status.innerHTML = '<span style="color:var(--accent2)">⚠️ لا يوجد مفتاح — أدخله أدناه</span>';
+  }
+}
+function closeGeminiModal() {
+  document.getElementById('geminiModal').style.display = 'none';
+}
+async function saveGeminiKey() {
+  const key = document.getElementById('geminiModalKey').value.trim();
+  const status = document.getElementById('geminiStatus');
+  if (!key) { status.innerHTML = '<span style="color:var(--accent2)">❌ الرجاء إدخال المفتاح</span>'; return; }
+  status.innerHTML = '⏳ جارٍ الاختبار...';
+  try {
+    const res = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.geminiKey}` },
+      body: JSON.stringify({ model: 'openrouter/auto', messages: [{ role: 'user', content: 'hi' }] })
+    });
+    const data = await res.json();
+    if (data.error) {
+      status.innerHTML = `<span style="color:var(--accent2)">❌ مفتاح خاطئ: ${data.error.message}</span>`;
+      return;
+    }
+    state.geminiKey = key;
+    localStorage.setItem('geminiKey', key);
+    status.innerHTML = '<span style="color:var(--accent3)">✅ المفتاح صحيح وتم الحفظ!</span>';
+    setTimeout(closeGeminiModal, 1200);
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--accent2)">⚠️ تعذر الاتصال — تحقق من الإنترنت</span>';
+  }
+}
+// close on backdrop click
+document.getElementById('geminiModal').addEventListener('click', function(e) {
+  if (e.target === this) closeGeminiModal();
+});
+
+// ===== UX PATCH =====
+(function(){
+const saveIndicator=()=>{const el=document.getElementById('autosaveIndicator'); if(!el)return; el.style.opacity='1'; clearTimeout(window.__as); window.__as=setTimeout(()=>el.style.opacity='0',1400)};
+const debounce=(fn,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
+window.addEventListener('load',()=>{
+ const area=document.getElementById('articleContent');
+ if(area){
+  area.addEventListener('input',debounce(()=>{
+   localStorage.setItem('draftArticleAuto',area.value);saveIndicator()
+  },400));
+  const old=localStorage.getItem('draftArticleAuto'); 
+  if(old && !area.value){area.value=old;}
+ }
+ document.querySelectorAll('textarea').forEach(t=>t.setAttribute('spellcheck','false'));
+});
+window.addEventListener('beforeunload',()=>{
+ const area=document.getElementById('articleContent'); 
+ if(area?.value) localStorage.setItem('draftArticleAuto',area.value)
+});
+})();
+</script>
+
+
+</body>
+</html>
